@@ -8,6 +8,7 @@ constexpr bool compare(std::array<T, N> const& arg1, std::array<T, N> const& arg
         if (arg1[i] != arg2[i]) return false;
     return true;
 }
+using tmpasm_adamo18pl = Program<Mem<Num<0>>>;
 
 using tmpasm_move = Program<
         Mov<Mem<Num<0>>, Num<42>>>;
@@ -58,6 +59,11 @@ using tmpasm_helloworld = Program<
         Mov<Mem<Mem<Num<10>>>, Num<'d'>>>;
 
 int main() {
+    static_assert(compare(
+            Computer<1, int8_t>::boot<tmpasm_adamo18pl>(),
+            std::array<int8_t, 1>({42})),
+                  "Failed [tmpasp_move].");
+
     static_assert(compare(
             Computer<1, int8_t>::boot<tmpasm_move>(),
             std::array<int8_t, 1>({42})),
