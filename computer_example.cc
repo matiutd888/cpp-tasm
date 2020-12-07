@@ -1,4 +1,4 @@
-#include "computer.h"
+#include "computer-mati.h"
 #include <array>
 
 // Operator == dla std::array jest constexpr dopiero od C++20.

@@ -3,6 +3,106 @@
 
 #include <vector>
 #include <cstdint>
+#include <array>
+
+//
+// Created by Mateusz on 07.12.2020.
+//
+
+#ifndef JNP_1_TASK_4_COMPUTER_MATI_H
+#define JNP_1_TASK_4_COMPUTER_MATI_H
+
+#include <cstdio>
+#include <array>
+#include <cstring>
+#include <assert.h>
+
+using code_type = uint_fast64_t;
+constexpr code_type id_code_base = 64;
+constexpr size_t id_length = 6;
+
+template <size_t adr>
+struct Mem {
+    static constexpr size_t adress = adr;
+};
+
+template <auto value>
+struct Num {
+    static constexpr auto val = value;
+};
+
+template <code_type id>
+struct Lea {
+    static constexpr code_type _id = id;
+};
+
+struct null_list {
+    using _head = null_list;
+    using _tail = null_list;
+};
+
+template <typename head, typename tail = null_list>
+struct list {
+    using _head = head;
+    using _tail = tail;
+};
+
+
+template <typename ...args>
+struct make_list;
+
+template <typename head>
+struct make_list<head> {
+    using _list = list<head>;
+};
+
+template <typename head, typename ...tail>
+struct make_list<head, tail...> {
+    using _list = list<head, typename make_list<tail...>::_list >;
+};
+
+template <typename ...T>
+struct Program {
+    using _instr = typename make_list<T...>::_list;
+};
+
+static constexpr code_type get_code(char c) {
+    if (c >= '0' && c <= '9')
+        return c - '0' + 1;
+    else if (c >= 'a' && c <= 'z')
+        return (c - 'a' + '9' - '0' + 1) + 1;
+    else if (c >= 'A' && c <= 'Z')
+        return c - 'A' + 'z' - 'a' + 1 + '9' - '0' + 1 + 1;
+}
+
+constexpr static code_type Id(char *id_str) {
+    code_type p = id_code_base;
+    code_type res = 0;
+    bool czy = true;
+    for(size_t i = 0; i < id_length; i++) {
+        if (id_str[i] == '\0')
+            czy = false;
+        uint64_t c = 0;
+        if (czy)
+            c = get_code(id_str[i]);
+        res = res * p + c;
+    }
+    return res;
+}
+
+template <size_t size, typename T>
+struct Computer {
+private:
+    using memory_array = std::array<T, size>;
+    using ids = std::array<code_type, size>;
+public:
+    template <typename Prog>
+    static constexpr std::array<T, size> boot() {
+        using instrukcje = typename Prog::_instr;
+    };
+};
+
+//-------------------------------------------------------------------------------------
 
 //TODO jeśli const expr funckja rzuci wyjątek lub asserta to bedzie błąd kompilacji
 //TODO ogolnie mozna używać wielu rzeczy, które są constexpr
@@ -40,7 +140,7 @@ struct Num {
 //Przykłady poprawnych odwołań do pamięci:
 //Mem<Num<0>>, Mem<Lea<Id("a")>>.
 template <typename T>
-struct Mem {
+struct Mem  {
 };
 
 //Pobranie efektywnego adresu zmiennej Lea
@@ -78,20 +178,7 @@ struct Program<Operation, Rest...> {
 //typ słowa – typ całkowitoliczbowy reprezentujący podstawową jednostkę
 //        pamięci.
 
-template <size_t size, typename T>
-class Computer {
-private:
-    static constexpr T memory [size];
-public:
-    //Dodatkowo klasa Computer powinna mieć metodę klasową boot, która załaduje
-//oraz wykona przekazany program w języku TMPAsm (Template Metaprogramming
-//Assembler) w czasie kompilowania programu.
-    template <typename XD>
-    constexpr static std::array<T, size> boot() {
 
-        return std::array<T, size>();
-    }
-};
 
 //TMPAsm wspiera następujące instrukcje:
 
@@ -156,13 +243,11 @@ public:
 //Przykład poprawnej etykiety:
 //Label<Id("label")>.
 
-
 //Instrukcje skoków Jmp, Jz, Js
 //        Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label //TODO liniowe wyszukanie w liście
 //Jz<Label>  – skok warunkowy do Label w przypadku gdy flaga ZF jest ustawiona na 1
 //Js<Label>  – skok warunkowy do Label w przypadku gdy flaga SF jest ustawiona na 1
 //Przykłady poprawnych skoków:
 //Jmp<Id("label")>, Jz<Id("stop")>.
-
 
 #endif //COMPUTER_H
