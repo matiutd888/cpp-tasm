@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdint>
 
+//TODO jeśli const expr funckja rzuci wyjątek lub asserta to bedzie błąd kompilacji
+//TODO ogolnie mozna używać wielu rzeczy, które są constexpr
 //Poprawna lewa wartość (l-wartość) w TMPAsm to Mem.
 //Poprawne prawe wartości (p-wartość) w TMPAsm to Mem, Num, Lea.
 
@@ -17,7 +19,8 @@
 //małe i wielkie litery nie są rozróżniane.
 //Przykłady poprawnych identyfikatorów: Id("A"), Id("01234"), Id("Cdefg").
 template <const char* str>
-struct Id {
+struct Id { //TODO -> funckja ale mozna zostawic tez struct
+    //TODO jeśli value jest nie poprawny to program nie może się skompilować
     constexpr static const char* value = str;
 };
 
@@ -53,16 +56,20 @@ struct Lea {
 //        są kopiowane do pamięci komputera zgodnie z kolejnością deklaracji,
 //        a później wykonywane są pozostałe instrukcje.
 template <typename... Operations>
-struct Program {};
+struct Program {}; //TODO lista typów, pierwszy element i mamy ogon i z każdym z przeglądanych elementów można coś zroić
+
 template <>
 struct Program<> {
-    constexpr static Operations *value = 0;
+    constexpr static int value = 0;
 };
 
 template <typename Operation, typename... Rest>
 struct Program<Operation, Rest...> {
     constexpr static int value = Operation::value + Program<Rest...>::value;
 };
+
+//TODO struktura ewaluator
+//sparametryzowane przez instrukcje add, itd itp
 
 
 //Szablon klasy Computer powinien mieć następujące parametry:
@@ -76,12 +83,12 @@ class Computer {
 private:
     static constexpr T memory [size];
 public:
-    template <typename A>
-
     //Dodatkowo klasa Computer powinna mieć metodę klasową boot, która załaduje
 //oraz wykona przekazany program w języku TMPAsm (Template Metaprogramming
 //Assembler) w czasie kompilowania programu.
+    template <typename XD>
     constexpr static std::array<T, size> boot() {
+
         return std::array<T, size>();
     }
 };
@@ -151,7 +158,7 @@ public:
 
 
 //Instrukcje skoków Jmp, Jz, Js
-//        Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label
+//        Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label //TODO liniowe wyszukanie w liście
 //Jz<Label>  – skok warunkowy do Label w przypadku gdy flaga ZF jest ustawiona na 1
 //Js<Label>  – skok warunkowy do Label w przypadku gdy flaga SF jest ustawiona na 1
 //Przykłady poprawnych skoków:
