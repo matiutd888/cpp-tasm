@@ -334,7 +334,7 @@ public:
     template<typename Arg1, typename Arg2, typename  ...Instructions>
     struct InstructionsParser<And<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) && Evaluator<Arg2>::rvalue(mem, ids);
+            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) & Evaluator<Arg2>::rvalue(mem, ids);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
@@ -342,7 +342,7 @@ public:
     template<typename Arg1, typename Arg2, typename  ...Instructions>
     struct InstructionsParser<Or<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) || Evaluator<Arg2>::rvalue(mem, ids);
+            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) | Evaluator<Arg2>::rvalue(mem, ids);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
@@ -350,7 +350,7 @@ public:
     template<typename Arg, typename  ...Instructions>
     struct InstructionsParser<Not<Arg>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg>::lvalue(mem, ids) = !Evaluator<Arg>::rvalue(mem, ids);
+            Evaluator<Arg>::lvalue(mem, ids) = ~Evaluator<Arg>::rvalue(mem, ids);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
