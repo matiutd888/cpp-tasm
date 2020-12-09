@@ -2,8 +2,6 @@
 // Created by Mateusz on 07.12.2020.
 //
 
-// TODO deklaracje, Jump, Obsługa Flag
-
 #ifndef JNP_1_TASK_4_COMPUTER_MATI_H
 #define JNP_1_TASK_4_COMPUTER_MATI_H
 
@@ -11,6 +9,33 @@
 #include <array>
 #include <cstring>
 #include <assert.h>
+
+// Lidty
+/*
+struct null_list {
+    using _head = null_list;
+    using _tail = null_list;
+};
+
+template <typename head, typename tail = null_list>
+struct list {
+    using _head = head;
+    using _tail = tail;
+};
+
+template <typename ...args>
+struct make_list;
+
+template <typename head>
+struct make_list<head> {
+    using _list = list<head>;
+};
+
+template <typename head, typename ...tail>
+struct make_list<head, tail...> {
+    using _list = list<head, typename make_list<tail...>::_list >;
+}; */
+
 
 using code_type = uint_fast64_t;
 constexpr code_type id_code_base = 64;
@@ -88,7 +113,6 @@ public:
         return mem;
     };
 
-
     template<typename V>
     struct Evaluator;
 
@@ -109,19 +133,16 @@ public:
         }
     };
 
-
     template<typename B>
     struct Evaluator<Mem<B>> {
         static constexpr auto rvalue(memory_t &mem, ids_t &ids) {
             return mem[Evaluator<B>::rvalue(mem, ids)];
         }
 
-
         static constexpr auto &lvalue(memory_t &mem, ids_t &ids) {
             return mem[Evaluator<B>::rvalue(mem, ids)];
         }
     };
-
 
     template<typename P>
     struct ComputerProgram;
@@ -178,7 +199,6 @@ public:
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
-
 };
 
 
@@ -199,16 +219,16 @@ public:
 //i wielkie litery alfabetu angielskiego (a-zA-Z) oraz cyfry (0-9);
 //małe i wielkie litery nie są rozróżniane.
 //Przykłady poprawnych identyfikatorów: Id("A"), Id("01234"), Id("Cdefg").
-template<const char *str>
+template <const char* str>
 struct Id { //TODO -> funckja ale mozna zostawic tez struct
     //TODO jeśli value jest nie poprawny to program nie może się skompilować
-    constexpr static const char *value = str;
+    constexpr static const char* value = str;
 };
 
 //Literały numeryczne Num
 //Literały całkowitoliczbowe.
 //Przykłady poprawnych literałów:
-template<int N>
+template <int N>
 struct Num {
     constexpr static int value = N;
 };
@@ -220,15 +240,15 @@ struct Num {
 //        typu słowa zdefiniowanego dla danego komputera.
 //Przykłady poprawnych odwołań do pamięci:
 //Mem<Num<0>>, Mem<Lea<Id("a")>>.
-template<typename T>
-struct Mem {
+template <typename T>
+struct Mem  {
 };
 
 //Pobranie efektywnego adresu zmiennej Lea
 //        Lea<Id> – zwraca wartość efektywnego adresu zmiennej Id.
 //Przykłady poprawnych pobrań adresu zmiennej:
 //Lea<Id("A")>, Lea<Id("a")>.
-template<typename T>
+template <typename T>
 struct Lea {
 };
 
@@ -236,16 +256,15 @@ struct Lea {
 //programu pamięć komputera jest inicjowana zerami. Następnie wszystkie zmienne
 //        są kopiowane do pamięci komputera zgodnie z kolejnością deklaracji,
 //        a później wykonywane są pozostałe instrukcje.
-template<typename... Operations>
-struct Program {
-}; //TODO lista typów, pierwszy element i mamy ogon i z każdym z przeglądanych elementów można coś zroić
+template <typename... Operations>
+struct Program {}; //TODO lista typów, pierwszy element i mamy ogon i z każdym z przeglądanych elementów można coś zroić
 
-template<>
+template <>
 struct Program<> {
     constexpr static int value = 0;
 };
 
-template<typename Operation, typename... Rest>
+template <typename Operation, typename... Rest>
 struct Program<Operation, Rest...> {
     constexpr static int value = Operation::value + Program<Rest...>::value;
 };

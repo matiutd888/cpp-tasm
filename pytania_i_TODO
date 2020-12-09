@@ -1,0 +1,7 @@
+1. Czy Z, S musza być constexpr? Czy memory musi być constexpr?
+2. O co chodzi z Label?
+3. Czy deklarując na początku nie tracimy poprawności?
+   (zmienna istnieje mimo że niezadeklarowana
+4. Nierozróżnianie dużych i małych liter
+5. Listy
+6. operacje logiczne

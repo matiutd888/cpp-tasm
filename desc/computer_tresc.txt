@@ -23,7 +23,7 @@ Podstawowe elementy języka TMPAsm:
   Id(const char*) – identyfikator; identyfikator tworzony jest na
   podstawie ciągu znaków o długości od 1 do 6 włącznie, zawierającego małe
   i wielkie litery alfabetu angielskiego (a-zA-Z) oraz cyfry (0-9);
-  małe i wielkie litery nie są rozróżniane.
+  małe i wielkie litery nie są rozróżnianed>.
   Przykłady poprawnych identyfikatorów: Id("A"), Id("01234"), Id("Cdefg").
 
 * Literały numeryczne Num
