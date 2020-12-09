@@ -35,7 +35,6 @@ struct make_list<head, tail...> {
 
 using code_type = uint_fast64_t;
 constexpr code_type id_code_base = 64;
-constexpr size_t id_length = 6;
 
 //Poprawna lewa wartość (l-wartość) w TMPAsm to Mem.
 //Poprawne prawe wartości (p-wartość) w TMPAsm to Mem, Num, Lea.
@@ -199,11 +198,22 @@ private:
     using ids_t = std::array<code_type, size>;
     static bool Z, S;
 public:
+    static constexpr void flip_arythmetic(int a) {
+        S = a < 0;
+        Z = a == 0;
+    }
+
+    static constexpr void flip_logic(int a) {
+        Z = a == 0;
+    }
+
     template<typename Prog>
     static constexpr std::array<T, size> boot() {
         ids_t ids = ids_t();
         memory_t mem = memory_t();
         ComputerProgram<Prog>::evaluate(mem, ids);
+        Z = false;
+        S = false;
         return mem;
     };
 
@@ -271,7 +281,9 @@ public:
     template<typename Arg1, typename Arg2, typename  ...Instructions>
     struct InstructionsParser<Add<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) + Evaluator<Arg2>::rvalue(mem, ids);
+            int result = Evaluator<Arg1>::rvalue(mem, ids) + Evaluator<Arg2>::rvalue(mem, ids);
+            Evaluator<Arg1>::lvalue(mem, ids) = result;
+            flip_arythmetic(result);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
@@ -279,7 +291,9 @@ public:
     template<typename Arg1, typename Arg2, typename  ...Instructions>
     struct InstructionsParser<Sub<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) - Evaluator<Arg2>::rvalue(mem, ids);
+            int result = Evaluator<Arg1>::rvalue(mem, ids) - Evaluator<Arg2>::rvalue(mem, ids);
+            Evaluator<Arg1>::lvalue(mem, ids) = result;
+            flip_arythmetic(result);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
@@ -287,7 +301,8 @@ public:
     template<typename Arg1, typename  ...Instructions>
     struct InstructionsParser<Inc<Arg1>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg1>::lvalue(mem, ids)++;
+            int result = Evaluator<Arg1>::lvalue(mem, ids)++;
+            flip_arythmetic(result);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
@@ -295,7 +310,8 @@ public:
     template<typename Arg1, typename  ...Instructions>
     struct InstructionsParser<Dec<Arg1>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg1>::lvalue(mem, ids)--;
+            int result = Evaluator<Arg1>::lvalue(mem, ids)--;
+            flip_arythmetic(result);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
@@ -335,11 +351,12 @@ public:
         }
     };
 
-
     template<typename Arg1, typename Arg2, typename  ...Instructions>
     struct InstructionsParser<And<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) & Evaluator<Arg2>::rvalue(mem, ids);
+            int result = Evaluator<Arg1>::rvalue(mem, ids) & Evaluator<Arg2>::rvalue(mem, ids);
+            Evaluator<Arg1>::lvalue(mem, ids) = result;
+            flip_logic(result);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
@@ -347,7 +364,9 @@ public:
     template<typename Arg1, typename Arg2, typename  ...Instructions>
     struct InstructionsParser<Or<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) | Evaluator<Arg2>::rvalue(mem, ids);
+            int result = Evaluator<Arg1>::rvalue(mem, ids) | Evaluator<Arg2>::rvalue(mem, ids);
+            Evaluator<Arg1>::lvalue(mem, ids) = result;;
+            flip_logic(result);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
@@ -355,7 +374,9 @@ public:
     template<typename Arg, typename  ...Instructions>
     struct InstructionsParser<Not<Arg>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
-            Evaluator<Arg>::lvalue(mem, ids) = ~Evaluator<Arg>::rvalue(mem, ids);
+            int result = ~Evaluator<Arg>::rvalue(mem, ids);
+            Evaluator<Arg>::lvalue(mem, ids) = result;
+            flip_logic(result);
             InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
