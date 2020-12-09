@@ -1,4 +1,4 @@
-#include "computer-mati.h"
+#include "computer.h"
 #include <array>
 
 // Operator == dla std::array jest constexpr dopiero od C++20.
@@ -8,7 +8,6 @@ constexpr bool compare(std::array<T, N> const& arg1, std::array<T, N> const& arg
         if (arg1[i] != arg2[i]) return false;
     return true;
 }
-using tmpasm_adamo18pl = Program<Mem<Num<0>>>;
 
 using tmpasm_move = Program<
         Mov<Mem<Num<0>>, Num<42>>>;
