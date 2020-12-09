@@ -1,13 +1,8 @@
-#ifndef COMPUTER_H
-#define COMPUTER_H
-
-#include <vector>
-#include <cstdint>
-#include <array>
-
 //
 // Created by Mateusz on 07.12.2020.
 //
+
+// TODO deklaracje, Jump, Obsługa Flag
 
 #ifndef JNP_1_TASK_4_COMPUTER_MATI_H
 #define JNP_1_TASK_4_COMPUTER_MATI_H
@@ -21,50 +16,20 @@ using code_type = uint_fast64_t;
 constexpr code_type id_code_base = 64;
 constexpr size_t id_length = 6;
 
-template <size_t adr>
-struct Mem {
-    static constexpr size_t adress = adr;
-};
+template<typename T>
+struct Mem;
 
-template <auto value>
-struct Num {
-    static constexpr auto val = value;
-};
+template<auto T>
+struct Num;
 
-template <code_type id>
-struct Lea {
-    static constexpr code_type _id = id;
-};
+template<code_type T>
+struct Lea;
 
-struct null_list {
-    using _head = null_list;
-    using _tail = null_list;
-};
+template<typename A, typename B>
+struct Mov;
 
-template <typename head, typename tail = null_list>
-struct list {
-    using _head = head;
-    using _tail = tail;
-};
-
-
-template <typename ...args>
-struct make_list;
-
-template <typename head>
-struct make_list<head> {
-    using _list = list<head>;
-};
-
-template <typename head, typename ...tail>
-struct make_list<head, tail...> {
-    using _list = list<head, typename make_list<tail...>::_list >;
-};
-
-template <typename ...T>
-struct Program {
-    using _instr = typename make_list<T...>::_list;
-};
+template<typename ...T>
+struct Program;
 
 static constexpr code_type get_code(char c) {
     if (c >= '0' && c <= '9')
@@ -79,10 +44,10 @@ constexpr static code_type Id(char *id_str) {
     code_type p = id_code_base;
     code_type res = 0;
     bool czy = true;
-    for(size_t i = 0; i < id_length; i++) {
+    for (size_t i = 0; i < id_length; i++) {
         if (id_str[i] == '\0')
             czy = false;
-        uint64_t c = 0;
+        code_type c = 0;
         if (czy)
             c = get_code(id_str[i]);
         res = res * p + c;
@@ -90,18 +55,134 @@ constexpr static code_type Id(char *id_str) {
     return res;
 }
 
-template <size_t size, typename T>
+template<typename T1, typename T2>
+struct And;
+
+template<code_type code, typename A>
+struct D;
+
+template<typename Arg1, typename Arg2>
+struct Add;
+
+template<typename Arg1, typename Arg2>
+struct Sub;
+
+template<typename Arg1>
+struct Inc;
+
+template<typename Arg1>
+struct Dec;
+
+template<size_t size, typename T>
 struct Computer {
 private:
-    using memory_array = std::array<T, size>;
-    using ids = std::array<code_type, size>;
+    using memory_t = std::array<T, size>;
+    using ids_t = std::array<code_type, size>;
+    static bool Z, S;
 public:
-    template <typename Prog>
+    template<typename Prog>
     static constexpr std::array<T, size> boot() {
-        using instrukcje = typename Prog::_instr;
+        ids_t ids = ids_t();
+        memory_t mem = memory_t();
+        ComputerProgram<Prog>::evaluate(mem, ids);
+        return mem;
     };
+
+
+    template<typename V>
+    struct Evaluator;
+
+    template<auto val>
+    struct Evaluator<Num<val>> {
+        static constexpr auto rvalue(memory_t &m, ids_t &ids) {
+            return val;
+        }
+    };
+
+    template<code_type code>
+    struct Evaluator<Lea<code>> {
+        static constexpr auto rvalue(memory_t &m, ids_t &ids) {
+            for (int i = 0; i < ids.size(); i++) {
+                if (code == ids[i])
+                    return i;
+            }
+        }
+    };
+
+
+    template<typename B>
+    struct Evaluator<Mem<B>> {
+        static constexpr auto rvalue(memory_t &mem, ids_t &ids) {
+            return mem[Evaluator<B>::rvalue(mem, ids)];
+        }
+
+
+        static constexpr auto &lvalue(memory_t &mem, ids_t &ids) {
+            return mem[Evaluator<B>::rvalue(mem, ids)];
+        }
+    };
+
+
+    template<typename P>
+    struct ComputerProgram;
+
+    template<typename... Instructions>
+    struct ComputerProgram<Program<Instructions...>> {
+        constexpr static auto evaluate(memory_t &mem, ids_t &ids) {
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
+            return mem;
+        }
+    };
+
+    template<typename... Instructions>
+    struct InstructionsParser {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids);
+    };
+
+    template<typename Dst, typename Src, typename ...Instructions>
+    struct InstructionsParser<Mov<Dst, Src>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            Evaluator<Dst>::lvalue(mem, ids) = Evaluator<Src>::rvalue(mem, ids);
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
+        }
+    };
+
+    template<typename Arg1, typename Arg2, typename  ...Instructions>
+    struct InstructionsParser<Add<Arg1, Arg2>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) + Evaluator<Arg2>::rvalue(mem, ids);
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
+        }
+    };
+
+    template<typename Arg1, typename Arg2, typename  ...Instructions>
+    struct InstructionsParser<Sub<Arg1, Arg2>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) - Evaluator<Arg2>::rvalue(mem, ids);
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
+        }
+    };
+
+    template<typename Arg1, typename  ...Instructions>
+    struct InstructionsParser<Inc<Arg1>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            Evaluator<Arg1>::lvalue(mem, ids)++;
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
+        }
+    };
+
+    template<typename Arg1, typename  ...Instructions>
+    struct InstructionsParser<Dec<Arg1>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            Evaluator<Arg1>::lvalue(mem, ids)--;
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
+        }
+    };
+
 };
 
+
+#endif //JNP_1_TASK_4_COMPUTER_MATI_H
 //-------------------------------------------------------------------------------------
 
 //TODO jeśli const expr funckja rzuci wyjątek lub asserta to bedzie błąd kompilacji
@@ -118,16 +199,16 @@ public:
 //i wielkie litery alfabetu angielskiego (a-zA-Z) oraz cyfry (0-9);
 //małe i wielkie litery nie są rozróżniane.
 //Przykłady poprawnych identyfikatorów: Id("A"), Id("01234"), Id("Cdefg").
-template <const char* str>
+template<const char *str>
 struct Id { //TODO -> funckja ale mozna zostawic tez struct
     //TODO jeśli value jest nie poprawny to program nie może się skompilować
-    constexpr static const char* value = str;
+    constexpr static const char *value = str;
 };
 
 //Literały numeryczne Num
 //Literały całkowitoliczbowe.
 //Przykłady poprawnych literałów:
-template <int N>
+template<int N>
 struct Num {
     constexpr static int value = N;
 };
@@ -139,15 +220,15 @@ struct Num {
 //        typu słowa zdefiniowanego dla danego komputera.
 //Przykłady poprawnych odwołań do pamięci:
 //Mem<Num<0>>, Mem<Lea<Id("a")>>.
-template <typename T>
-struct Mem  {
+template<typename T>
+struct Mem {
 };
 
 //Pobranie efektywnego adresu zmiennej Lea
 //        Lea<Id> – zwraca wartość efektywnego adresu zmiennej Id.
 //Przykłady poprawnych pobrań adresu zmiennej:
 //Lea<Id("A")>, Lea<Id("a")>.
-template <typename T>
+template<typename T>
 struct Lea {
 };
 
@@ -155,15 +236,16 @@ struct Lea {
 //programu pamięć komputera jest inicjowana zerami. Następnie wszystkie zmienne
 //        są kopiowane do pamięci komputera zgodnie z kolejnością deklaracji,
 //        a później wykonywane są pozostałe instrukcje.
-template <typename... Operations>
-struct Program {}; //TODO lista typów, pierwszy element i mamy ogon i z każdym z przeglądanych elementów można coś zroić
+template<typename... Operations>
+struct Program {
+}; //TODO lista typów, pierwszy element i mamy ogon i z każdym z przeglądanych elementów można coś zroić
 
-template <>
+template<>
 struct Program<> {
     constexpr static int value = 0;
 };
 
-template <typename Operation, typename... Rest>
+template<typename Operation, typename... Rest>
 struct Program<Operation, Rest...> {
     constexpr static int value = Operation::value + Program<Rest...>::value;
 };
