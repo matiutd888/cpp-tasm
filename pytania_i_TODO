@@ -5,3 +5,6 @@
 4. Nierozróżnianie dużych i małych liter
 5. Listy
 6. operacje logiczne
+7. co jak nie znajdziemy lejbela
+8. jak wykrywać to że ktoś zamiast Id("dupa12") dał nam liczbę
+9. czy dodawać const w templatkach ze zmiennymi?

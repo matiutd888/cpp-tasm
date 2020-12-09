@@ -58,7 +58,8 @@ static constexpr code_type get_code(char c) {
     return 0;
 }
 
-static constexpr code_type Id(const char *id_str) {//TODO jeśli id_str jest nie poprawny to program nie może się skompilować
+static constexpr code_type
+Id(const char *id_str) {//TODO jeśli id_str jest nie poprawny to program nie może się skompilować
     code_type p = id_code_base;
     code_type res = 0;
     bool czy = true;
@@ -172,12 +173,21 @@ struct And;
 //Przykład poprawnej etykiety:
 //Label<Id("label")>.
 
+template<code_type code>
+struct Label {
+    static constexpr auto label_code = code;
+};
+
 //Instrukcje skoków Jmp, Jz, Js
 //        Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label //TODO liniowe wyszukanie w liście
 //Jz<Label>  – skok warunkowy do Label w przypadku gdy flaga ZF jest ustawiona na 1
 //Js<Label>  – skok warunkowy do Label w przypadku gdy flaga SF jest ustawiona na 1
 //Przykłady poprawnych skoków:
 //Jmp<Id("label")>, Jz<Id("stop")>.
+
+
+template<typename A>
+struct Jmp;
 
 //Szablon klasy Computer powinien mieć następujące parametry: wielkość pamięci – dodatnia wartość określająca liczbę
 // komórek pamięci w słowach; typ słowa – typ całkowitoliczbowy reprezentujący podstawową jednostkę pamięci.
@@ -243,6 +253,12 @@ public:
         constexpr static void evaluate(memory_t &mem, ids_t &ids);
     };
 
+    template<>
+    struct InstructionsParser<> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+        }
+    };
+
     template<typename Dst, typename Src, typename ...Instructions>
     struct InstructionsParser<Mov<Dst, Src>, Instructions...> {
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
@@ -280,6 +296,41 @@ public:
         constexpr static void evaluate(memory_t &mem, ids_t &ids) {
             Evaluator<Arg1>::lvalue(mem, ids)--;
             InstructionsParser<Instructions...>::evaluate(mem, ids);
+        }
+    };
+
+    template<typename A, typename  ...Instructions>
+    struct InstructionsParser<Jmp<A>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            const code_type c = A::label_code;
+            LabelParser<c, Instructions...>::evaluate(mem, ids);
+        }
+    };
+
+    //--------------------LABEL PARSER
+    template<const code_type label_to_find, typename ...Instr>
+    struct LabelParser;
+
+    template<const code_type label_to_find, code_type code, typename ...Instr>
+    struct LabelParser<label_to_find, Label<code>, Instr...> {
+        static constexpr void evaluate(memory_t &mem, ids_t &ids) {
+            if (label_to_find == Label<code>::label_code)
+                InstructionsParser<Instr...>::evaluate(mem, ids);
+            else LabelParser<label_to_find, Instr...>::evaluate(mem, ids);
+        }
+    };
+
+    template<const code_type label_to_find, typename A, typename ...Instr>
+    struct LabelParser<label_to_find, A, Instr...> {
+        static constexpr void evaluate(memory_t &mem, ids_t &ids) {
+            LabelParser<label_to_find, Instr...>::evaluate(mem, ids);
+        }
+    };
+
+    template<const code_type label_to_find>
+    struct LabelParser<label_to_find> {
+        static constexpr void evaluate(memory_t &mem, ids_t &ids) {
+            static_assert("No label");
         }
     };
 };
