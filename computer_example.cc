@@ -12,11 +12,11 @@ constexpr bool compare(std::array<T, N> const& arg1, std::array<T, N> const& arg
 using tmpasm_move = Program<
         Mov<Mem<Num<0>>, Num<42>>>;
 
-using tmpasm_jump = Program<
-        Inc<Mem<Num<0>>>,
-        Jmp<Id("stop")>,
-        Inc<Mem<Num<0>>>,
-        Label<Id("stop")>>;
+//using tmpasm_jump = Program<
+//        Inc<Mem<Num<0>>>,
+//        Jmp<Id("stop")>,
+//        Inc<Mem<Num<0>>>,
+//        Label<Id("stop")>>;
 
 using tmpasm_data = Program<
         Inc<Mem<Lea<Id("a")>>>,
