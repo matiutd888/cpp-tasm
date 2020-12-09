@@ -142,36 +142,32 @@ struct Inc;
 template<typename Arg1>
 struct Dec;
 
-
 //Operacje logiczne And, Or, Not
-//        And<Arg1, Arg2> – bitowa operacja and
+//And<Arg1, Arg2> – bitowa operacja and
 //Or<Arg1, Arg2> – bitowa operacja or
-//Wynik powyższych operacji jest umieszczany w Arg1.
-//Arg1 musi być poprawną l-wartością, natomiast Arg2 musi być poprawną
-//        p-wartością.
+//Wynik powyższych operacji jest umieszczany w Arg1. Arg1 musi być poprawną l-wartością, natomiast Arg2 musi być
+//poprawną p-wartością.
 //Not<Arg> – bitowa negacja
-//Arg musi być poprawną l-wartością.
-//Wszystkie operacje logiczne ustawiają:
-//- flagę ZF (zero flag) procesora na 1, jeśli wynik jest 0,
-//a na 0 w przeciwnym przypadku.
-//Przykłady poprawnych operacji:
-//And<Mem<Num<0>>, Num<1>>, Not<Mem<Lea<Id("a")>>>.
+//Arg musi być poprawną l-wartością. Wszystkie operacje logiczne ustawiają: - flagę ZF (zero flag) procesora na 1,
+//jeśli wynik jest 0, a na 0 w przeciwnym przypadku.
+//Przykłady poprawnych operacji: And<Mem<Num<0>>, Num<1>>, Not<Mem<Lea<Id("a")>>>.
 
-template<typename T1, typename T2>
+template<typename Arg1, typename Arg2>
 struct And;
 
+template<typename Arg1, typename Arg2>
+struct Or;
+
+template<typename Arg>
+struct Not;
 
 //Operację porównania Cmp
-//        Cmp<Arg1, Arg2> – działa jak operacja odejmowania, ale nie zapisuje wyniku,
-//a tylko ustawia flagi.
-//Arg1 oraz Arg2 muszą być poprawnymi p-wartościami.
-//Przykład poprawnej operacji: Cmp<Mem<Num<0>>, Num<1>>.
+//Cmp<Arg1, Arg2> – działa jak operacja odejmowania, ale nie zapisuje wyniku, a tylko ustawia flagi.
+//Arg1 oraz Arg2 muszą być poprawnymi p-wartościami. Przykład poprawnej operacji: Cmp<Mem<Num<0>>, Num<1>>.
 
 
 //Oznaczenie etykiety Label
-//        Label<Id> – ustawienie etykiety o identyfikatorze Id.
-//Przykład poprawnej etykiety:
-//Label<Id("label")>.
+//Label<Id> – ustawienie etykiety o identyfikatorze Id. Przykład poprawnej etykiety: Label<Id("label")>.
 
 template<code_type code>
 struct Label {
@@ -179,7 +175,7 @@ struct Label {
 };
 
 //Instrukcje skoków Jmp, Jz, Js
-//        Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label //TODO liniowe wyszukanie w liście
+//Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label //TODO liniowe wyszukanie w liście
 //Jz<Label>  – skok warunkowy do Label w przypadku gdy flaga ZF jest ustawiona na 1
 //Js<Label>  – skok warunkowy do Label w przypadku gdy flaga SF jest ustawiona na 1
 //Przykłady poprawnych skoków:
@@ -190,7 +186,7 @@ template<typename A>
 struct Jmp;
 
 //Szablon klasy Computer powinien mieć następujące parametry: wielkość pamięci – dodatnia wartość określająca liczbę
-// komórek pamięci w słowach; typ słowa – typ całkowitoliczbowy reprezentujący podstawową jednostkę pamięci.
+//komórek pamięci w słowach; typ słowa – typ całkowitoliczbowy reprezentujący podstawową jednostkę pamięci.
 template<size_t size, typename T>
 struct Computer {
 private:
@@ -331,6 +327,31 @@ public:
     struct LabelParser<label_to_find> {
         static constexpr void evaluate(memory_t &mem, ids_t &ids) {
             static_assert("No label");
+        }
+    };
+
+
+    template<typename Arg1, typename Arg2, typename  ...Instructions>
+    struct InstructionsParser<And<Arg1, Arg2>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) && Evaluator<Arg2>::rvalue(mem, ids);
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
+        }
+    };
+
+    template<typename Arg1, typename Arg2, typename  ...Instructions>
+    struct InstructionsParser<Or<Arg1, Arg2>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            Evaluator<Arg1>::lvalue(mem, ids) = Evaluator<Arg1>::rvalue(mem, ids) || Evaluator<Arg2>::rvalue(mem, ids);
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
+        }
+    };
+
+    template<typename Arg, typename  ...Instructions>
+    struct InstructionsParser<Not<Arg>, Instructions...> {
+        constexpr static void evaluate(memory_t &mem, ids_t &ids) {
+            Evaluator<Arg>::lvalue(mem, ids) = !Evaluator<Arg>::rvalue(mem, ids);
+            InstructionsParser<Instructions...>::evaluate(mem, ids);
         }
     };
 };
