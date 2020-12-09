@@ -58,17 +58,22 @@ static constexpr code_type get_code(char c) {
     return 0;
 }
 
+static constexpr char make_const(const char i){
+    return i;
+}
+
 static constexpr code_type
 Id(const char *id_str) {//TODO jeśli id_str jest nie poprawny to program nie może się skompilować
+    std::basic_string_view<char>s(id_str);
     code_type p = id_code_base;
     code_type res = 0;
     bool czy = true;
-    for (size_t i = 0; i < id_length; i++) {
-        if (id_str[i] == '\0')
+    for (char i : s) {
+        if (i == '\0')
             czy = false;
         code_type c = 0;
         if (czy)
-            c = get_code(id_str[i]);
+            c = get_code(i);
         res = res * p + c;
     }
     return res;
