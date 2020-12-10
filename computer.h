@@ -254,7 +254,7 @@ private:
     template<code_type code>
     struct Evaluator<Lea<code>> {
         static constexpr auto rvalue(hardware &h) {
-            for (int i = 0; i < h.ind; i++) {
+            for (size_t i = 0; i < h.ind; i++) {
                 if (code == h.ids[i])
                     return i;
             }
