@@ -6,7 +6,7 @@
 #include <cstring>
 #include <cassert>
 #include <string>
-#include <regex>
+#include <cstdlib>
 
 using code_type = uint_fast64_t;
 constexpr code_type id_code_base = 64;
@@ -30,13 +30,13 @@ static constexpr code_type get_code(char c) {
         return c - '0' + 1;
     else if (c >= 'A' && c <= 'Z')
         return c - 'A' + '9' - '0' + 2;
-    else
-        throw std::runtime_error{"id_error: not valid sign"};
+    else {
+        //TODO NOT VALID SIGNS
+    }
 }
 
 static constexpr code_type Id(const char *id_str) {
     std::basic_string_view<char> s(id_str);
-    code_type res = 0;
     if (id_size_min <= s.size() && s.size() <= id_size_max) {
         code_type p = id_code_base;
         code_type res = 0;
@@ -51,7 +51,7 @@ static constexpr code_type Id(const char *id_str) {
         }
         return res;
     } else {
-        throw std::runtime_error{"id_error: not valid length"};
+        //TODO NOT VALID ID LENGHT
     }
 }
 
@@ -153,7 +153,7 @@ template<code_type code>
 struct Label;
 
 //Instrukcje skoków Jmp, Jz, Js
-//Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label //TODO liniowe wyszukanie w liście
+//Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label
 //Jz<Label>  – skok warunkowy do Label w przypadku gdy flaga ZF jest ustawiona na 1
 //Js<Label>  – skok warunkowy do Label w przypadku gdy flaga SF jest ustawiona na 1
 //Przykłady poprawnych skoków:
@@ -193,8 +193,6 @@ public:
     };
 
 private:
-    // TODO jaki typ result
-    // Czy unsigned - unsigned ma być ujemny????
     static constexpr void set_flags_arthmetic(hardware &h, T result) {
         if (result == 0)
             h.ZF = 1;
@@ -211,7 +209,7 @@ private:
         else h.ZF = 0;
     }
 
-    //--------------------DECLARATION PARSER
+    //DECLARATION PARSER
     template<typename... Instr>
     struct DeclarationParser;
 
@@ -229,7 +227,7 @@ private:
                 h.mem[h.ind] = Evaluator<Value>::rvalue(h);
                 h.ind++;
             } else {
-                //TODO error brak pamięci
+                //TODO NO MORE MEMORY
             }
             DeclarationParser<Instructions...>::evaluate(h);
         }
@@ -242,6 +240,7 @@ private:
         }
     };
 
+    //EVALUATOR
     template<typename V>
     struct Evaluator;
 
@@ -259,15 +258,13 @@ private:
                 if (code == h.ids[i])
                     return i;
             }
-            //TODO return/obsługa błędu
-            static_assert("POZA PAMIĘCIĄ");
+            //TODO VALUE NOT FOUND IN MEMORY
             return 0;
         }
     };
 
-    // TODO sprawdzanie zakresu
     template<typename B>
-    struct Evaluator<Mem<B>> {//TODO odwołania poza pamięc obsluzyc
+    struct Evaluator<Mem<B>> {
         static constexpr auto rvalue(hardware &h) {
             return h.mem[Evaluator<B>::rvalue(h)];
         }
@@ -291,6 +288,7 @@ private:
         }
     };
 
+    //INSTRUCTIONS PARSER
     // TODO błędna instrukcja nie jest tu wykrywana (ta struktura nie powinna mieć implementacji)
     template<typename... Instructions>
     struct InstructionsParser;
@@ -380,7 +378,7 @@ private:
         }
     };
 
-    //--------------------LABEL PARSER
+    //LABEL PARSER
     template<const code_type label_to_find, typename... Instr>
     struct LabelParser;
 
@@ -403,7 +401,7 @@ private:
     template<const code_type label_to_find>
     struct LabelParser<label_to_find> {
         constexpr static void evaluate(hardware &h) {
-            static_assert("No label!");
+            //TODO LABEL NOT FOUND
         }
     };
 
