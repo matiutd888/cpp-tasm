@@ -272,6 +272,7 @@ private:
         }
     };
 
+    // TODO błędna instrukcja nie jest tu wykrywana (ta struktura nie powinna mieć implementacji)
     template<typename... Instructions>
     struct InstructionsParser {
         constexpr static void evaluate(hardware &h) {
