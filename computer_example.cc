@@ -18,7 +18,7 @@ using tmpasm_jump = Program<
         Inc<Mem<Num<0>>>,
         Label<Id("stop")>>;
 
-/*using tmpasm_data = Program<
+using tmpasm_data = Program<
         Inc<Mem<Lea<Id("a")>>>,
         D<Id("a"), Num<0>>,
         D<Id("b"), Num<2>>,
@@ -55,7 +55,7 @@ using tmpasm_helloworld = Program<
         Inc<Mem<Num<10>>>,
         Mov<Mem<Mem<Num<10>>>, Num<'l'>>,
         Inc<Mem<Num<10>>>,
-        Mov<Mem<Mem<Num<10>>>, Num<'d'>>>;*/
+        Mov<Mem<Mem<Num<10>>>, Num<'d'>>>;
 
 int main() {
     static_assert(compare(
@@ -67,7 +67,7 @@ int main() {
             Computer<1, int>::boot<tmpasm_jump>(),
             std::array<int, 1>({1})),
             "Failed [tmpasp_jump].");
-//
+
 //    static_assert(compare(
 //            Computer<4, uint32_t>::boot<tmpasm_data>(),
 //            std::array<uint32_t, 4>({1, 2, 3, 0})),
@@ -77,9 +77,9 @@ int main() {
 //            Computer<5, int64_t>::boot<tmpasm_operations>(),
 //            std::array<int64_t, 5>({6, 2, 0, 0, 0})),
 //            "Failed [tmpasp_operations].");
-/*
+
     static_assert(compare(
             Computer<11, char>::boot<tmpasm_helloworld>(),
             std::array<char, 11>({'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'})),
-            "Failed [tmpasm_helloworld]."); */
+            "Failed [tmpasm_helloworld].");
 }

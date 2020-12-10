@@ -99,15 +99,13 @@ struct Program;
 
 //Deklaracja zmiennej D D<Id, Value> – deklaruje zmienną o identyfikatorze Id oraz wartości numerycznej Value.
 //Przykład poprawnej deklaracji zmiennej: D<Id("A"), Num<5>>.
-template<code_type code, typename A>
+template<code_type code, typename Value>
 struct D;
-
 
 //Operacja kopiowania Mov Mov<Dst, Src> – kopiuje wartość Src do Dst; Dst musi być poprawną l-wartością,
 // natomiast Src musi być poprawną p-wartością.
 // Przykłady poprawnych instrukcji: Mov<Mem<Num<0>>, Num<13>>, Mov<Mem<Lea<Id("abc")>>, Mem<Num<0>>>.
-
-template<typename A, typename B>
+template<typename Dst, typename Src>
 struct Mov;
 
 
@@ -249,12 +247,13 @@ private:
                 if (code == h.ids[i])
                     return i;
             }
+            throw std::runtime_error("");//TODO return/obsługa błędu
         }
     };
 
     // TODO sprawdzanie zakresu
     template<typename B>
-    struct Evaluator<Mem<B>> {
+    struct Evaluator<Mem<B>> {//TODO odwołania poza pamięc obsluzyc
         static constexpr auto rvalue(hardware &h) {
             return h.mem[Evaluator<B>::rvalue(h)];
         }
@@ -282,20 +281,15 @@ private:
 
     // TODO błędna instrukcja nie jest tu wykrywana (ta struktura nie powinna mieć implementacji)
     template<typename... Instructions>
-    struct InstructionsParser {
-        constexpr static void evaluate(hardware &h) {
+    struct InstructionsParser;
 
-        }
-    };
-
-    /* // TODO błąd kompilacji?
+    // TODO błąd kompilacji?
      template<>
      struct InstructionsParser<> {
          constexpr static void evaluate(hardware &h) {
-         if (!h.only_declare
- {
-     }
-     };*/
+
+         }
+     };
 
     template<typename Dst, typename Src, typename... Instructions>
     struct InstructionsParser<Mov<Dst, Src>, Instructions...> {
@@ -357,7 +351,12 @@ private:
     struct InstructionsParser<D<label_code, Value>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.only_declare) {
-                //TODO deklaracja zmiennej o wartosci h.mem[Evaluator<Value>::rvalue(h)]; z labelem code
+                //TODO deklaracja zmiennej o wartosci z labelem code
+                //zanjd i
+                int i  = 5;
+                //pierwszy wolny indeks to i;
+                h.ids[i] = label_code;
+                //h.mem[i] =
             }
             InstructionsParser<Instructions...>::evaluate(h);
         }
