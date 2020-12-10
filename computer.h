@@ -457,6 +457,4 @@ private:
     };
 };
 
-// TODO declaration parser
-
 #endif //COMPUTER_H
