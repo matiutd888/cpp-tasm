@@ -199,13 +199,13 @@ private:
         ids_t ids;
         bool ZF;
         bool SF;
-        bool only_declare;
+        size_t ind;
     };
 
 public:
     template<typename Prog>
     static constexpr std::array<T, size> boot() {
-        hardware h = {memory_t(), ids_t(), false, false, true};
+        hardware h = {memory_t(), ids_t(), false, false, 0};
         ComputerProgram<Prog>::declare_variables(h);
         ComputerProgram<Prog>::run(h);
         return h.mem;
@@ -230,6 +230,37 @@ private:
         else h.ZF = 0;
     }
 
+    //--------------------DECLARATION PARSER
+    template<typename... Instr>
+    struct DeclarationParser;
+
+    template<>
+    struct DeclarationParser<> {
+        constexpr static void evaluate(hardware &h) {
+        }
+    };
+
+    template<code_type label_code, typename Value, typename... Instructions>
+    struct DeclarationParser<D<label_code, Value>, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
+            if (h.ind < h.mem.size()) {
+                h.ids[h.ind] = label_code;
+                h.mem[h.ind] = Evaluator<Value>::rvalue(h);
+                h.ind++;
+            } else {
+                //TODO error brak pamięci
+            }
+            DeclarationParser<Instructions...>::evaluate(h);
+        }
+    };
+
+    template<typename Skip, typename... Instructions>
+    struct DeclarationParser<Skip, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
+            DeclarationParser<Instructions...>::evaluate(h);
+        }
+    };
+
     template<typename V>
     struct Evaluator;
 
@@ -243,11 +274,13 @@ private:
     template<code_type code>
     struct Evaluator<Lea<code>> {
         static constexpr auto rvalue(hardware &h) {
-            for (int i = 0; i < h.ids.size(); i++) {
+            for (int i = 0; i < h.ind; i++) {
                 if (code == h.ids[i])
                     return i;
             }
-            throw std::runtime_error("");//TODO return/obsługa błędu
+            //TODO return/obsługa błędu
+            static_assert("POZA PAMIĘCIĄ");
+            return 0;
         }
     };
 
@@ -269,13 +302,11 @@ private:
     template<typename... Instructions>
     struct ComputerProgram<Program<Instructions...>> {
         constexpr static void run(hardware &h) {
-            h.only_declare = false;
             InstructionsParser<Instructions...>::evaluate(h);
         }
 
         constexpr static void declare_variables(hardware &h) {
-            h.only_declare = true;
-            InstructionsParser<Instructions...>::evaluate(h);
+            DeclarationParser<Instructions...>::evaluate(h);
         }
     };
 
@@ -284,19 +315,16 @@ private:
     struct InstructionsParser;
 
     // TODO błąd kompilacji?
-     template<>
-     struct InstructionsParser<> {
-         constexpr static void evaluate(hardware &h) {
-
-         }
-     };
+    template<>
+    struct InstructionsParser<> {
+        constexpr static void evaluate(hardware &h) {
+        }
+    };
 
     template<typename Dst, typename Src, typename... Instructions>
     struct InstructionsParser<Mov<Dst, Src>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                Evaluator<Dst>::lvalue(h) = Evaluator<Src>::rvalue(h);
-            }
+            Evaluator<Dst>::lvalue(h) = Evaluator<Src>::rvalue(h);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
@@ -304,11 +332,9 @@ private:
     template<typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Add<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                auto result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
-                Evaluator<Arg1>::lvalue(h) = result;
-                set_flags_arthmetic(h, result);
-            }
+            auto result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
+            Evaluator<Arg1>::lvalue(h) = result;
+            set_flags_arthmetic(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
@@ -316,11 +342,9 @@ private:
     template<typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Sub<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
-                Evaluator<Arg1>::lvalue(h) = result;
-                set_flags_arthmetic(h, result);
-            }
+            auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
+            Evaluator<Arg1>::lvalue(h) = result;
+            set_flags_arthmetic(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
@@ -328,10 +352,8 @@ private:
     template<typename Arg1, typename... Instructions>
     struct InstructionsParser<Inc<Arg1>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                auto result = Evaluator<Arg1>::lvalue(h)++;
-                set_flags_arthmetic(h, result);
-            }
+            auto result = Evaluator<Arg1>::lvalue(h)++;
+            set_flags_arthmetic(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
@@ -339,10 +361,8 @@ private:
     template<typename Arg1, typename... Instructions>
     struct InstructionsParser<Dec<Arg1>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                auto result = Evaluator<Arg1>::lvalue(h)--;
-                set_flags_arthmetic(h, result);
-            }
+            auto result = Evaluator<Arg1>::lvalue(h)--;
+            set_flags_arthmetic(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
@@ -350,14 +370,6 @@ private:
     template<code_type label_code, typename Value, typename... Instructions>
     struct InstructionsParser<D<label_code, Value>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (h.only_declare) {
-                //TODO deklaracja zmiennej o wartosci z labelem code
-                //zanjd i
-                int i  = 5;
-                //pierwszy wolny indeks to i;
-                h.ids[i] = label_code;
-                //h.mem[i] =
-            }
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
@@ -410,20 +422,16 @@ private:
     template<const code_type label_to_find>
     struct LabelParser<label_to_find> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                static_assert("No label!");
-            }
+            static_assert("No label!");
         }
     };
 
     template<typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<And<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                auto result = Evaluator<Arg1>::rvalue(h) & Evaluator<Arg2>::rvalue(h);
-                Evaluator<Arg1>::lvalue(h) = result;
-                set_flags_logical(h, result);
-            }
+            auto result = Evaluator<Arg1>::rvalue(h) & Evaluator<Arg2>::rvalue(h);
+            Evaluator<Arg1>::lvalue(h) = result;
+            set_flags_logical(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
@@ -431,11 +439,9 @@ private:
     template<typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Or<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                auto result = Evaluator<Arg1>::rvalue(h) | Evaluator<Arg2>::rvalue(h);
-                Evaluator<Arg1>::lvalue(h) = result;
-                set_flags_logical(h, result);
-            }
+            auto result = Evaluator<Arg1>::rvalue(h) | Evaluator<Arg2>::rvalue(h);
+            Evaluator<Arg1>::lvalue(h) = result;
+            set_flags_logical(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
@@ -443,11 +449,9 @@ private:
     template<typename Arg, typename... Instructions>
     struct InstructionsParser<Not<Arg>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!h.only_declare) {
-                auto result = ~Evaluator<Arg>::rvalue(h);
-                Evaluator<Arg>::lvalue(h) = result;
-                set_flags_logical(h, result);
-            }
+            auto result = ~Evaluator<Arg>::rvalue(h);
+            Evaluator<Arg>::lvalue(h) = result;
+            set_flags_logical(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
