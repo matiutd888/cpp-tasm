@@ -8,10 +8,10 @@
 #include <string>
 #include <cstdlib>
 
-using id_type = uint_fast64_t;
-constexpr id_type id_code_base = 64;
-constexpr id_type id_size_min = 1;
-constexpr id_type id_size_max = 6;
+using code_type = uint_fast64_t;
+constexpr code_type id_code_base = 64;
+constexpr size_t id_size_min = 1;
+constexpr size_t id_size_max = 6;
 
 //Poprawna lewa wartość (l-wartość) w TMPAsm to Mem.
 //Poprawne prawe wartości (p-wartość) w TMPAsm to Mem, Num, Lea.
@@ -28,7 +28,7 @@ static constexpr bool check_if_sign_valid() {
     return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z');
 }*/
 
-static constexpr id_type get_id(const char &c) {
+static constexpr code_type get_id(const char &c) {
     /*static_assert((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z'),
                   "ID not valid: wrong sign!");*/
     // TODO this assert doesnt work :(
@@ -44,16 +44,16 @@ static constexpr id_type get_id(const char &c) {
     }
 }
 
-static constexpr id_type Id(const char *id_str) {
+static constexpr code_type Id(const char *id_str) {
     std::basic_string_view<char> s(id_str);
     if (id_size_min <= s.size() && s.size() <= id_size_max) {
-        id_type p = id_code_base;
-        id_type res = 0;
+        code_type p = id_code_base;
+        code_type res = 0;
         bool czy = true;
         for (char i : s) {
             if (i == '\0')
                 czy = false;
-            id_type c = 0;
+            code_type c = 0;
             if (czy)
                 c = get_id(i);
             res = res * p + c;
@@ -76,7 +76,7 @@ struct Mem;
 
 //Pobranie efektywnego adresu zmiennej Lea, Lea<Id> – zwraca wartość efektywnego adresu zmiennej Id.
 //Przykłady poprawnych pobrań adresu zmiennej: Lea<Id("A")>, Lea<Id("a")>.
-template<id_type T>
+template<code_type T>
 struct Lea;
 
 //Program w języku TMPAsm składa się z ciągu instrukcji. Podczas ładowania programu pamięć komputera jest inicjowana
@@ -89,7 +89,7 @@ struct Program;
 
 //Deklaracja zmiennej D D<Id, Value> – deklaruje zmienną o identyfikatorze Id oraz wartości numerycznej Value.
 //Przykład poprawnej deklaracji zmiennej: D<Id("A"), Num<5>>.
-template<id_type id, typename Value>
+template<code_type id, typename Value>
 struct D;
 
 //Operacja kopiowania Mov Mov<Dst, Src> – kopiuje wartość Src do Dst; Dst musi być poprawną l-wartością,
@@ -158,7 +158,7 @@ struct Cmp;
 //Oznaczenie etykiety Label
 //Label<Id> – ustawienie etykiety o identyfikatorze Id. Przykład poprawnej etykiety: Label<Id("label")>.
 
-template<id_type id>
+template<code_type id>
 struct Label;
 
 //Instrukcje skoków Jmp, Jz, Js
@@ -168,13 +168,13 @@ struct Label;
 //Przykłady poprawnych skoków:
 //Jmp<Id("label")>, Jz<Id("stop")>.
 
-template<id_type label_id>
+template<code_type label_id>
 struct Jmp;
 
-template<id_type label_id>
+template<code_type label_id>
 struct Jz;
 
-template<id_type label_id>
+template<code_type label_id>
 struct Js;
 
 //Szablon klasy Computer powinien mieć następujące parametry: wielkość pamięci – dodatnia wartość określająca liczbę
@@ -183,10 +183,10 @@ template<size_t size, typename T>
 struct Computer {
 private:
     using memory_t = std::array<T, size>;
-    using ids_t = std::array<id_type, size>;
+    using id_codes_t = std::array<code_type, size>;
     struct hardware {
         memory_t mem;
-        ids_t ids;
+        id_codes_t id_codes;
         bool ZF;
         bool SF;
         size_t ind;
@@ -195,7 +195,7 @@ private:
 public:
     template<typename Prog>
     static constexpr std::array<T, size> boot() {
-        hardware h = {memory_t(), ids_t(), false, false, 0};
+        hardware h = {memory_t(), id_codes_t(), false, false, 0};
         ComputerProgram<Prog>::declare_variables(h);
         ComputerProgram<Prog>::run(h);
         return h.mem;
@@ -228,11 +228,11 @@ private:
         }
     };
 
-    template<id_type label_id, typename Value, typename... Instructions>
-    struct DeclarationParser<D<label_id, Value>, Instructions...> {
+    template<code_type id_code, typename Value, typename... Instructions>
+    struct DeclarationParser<D<id_code, Value>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.ind < h.mem.size()) {
-                h.ids[h.ind] = label_id;
+                h.id_codes[h.ind] = id_code;
                 h.mem[h.ind] = Evaluator<Value>::rvalue(h);
                 h.ind++;
             } else {
@@ -260,21 +260,20 @@ private:
         }
     };
 
-    static constexpr bool array_has(const ids_t &ids, id_type id) {
-        for (const auto id_it : ids) {
-            if (id_it == id) return true;
+    static constexpr bool array_has(const id_codes_t &id_codes, code_type code) {
+        for (const auto code_it : id_codes) {
+            if (code_it == code) return true;
         }
         return false;
     }
 
-    template<id_type id>
-    struct Evaluator<Lea<id>> {
+    template<code_type id_code>
+    struct Evaluator<Lea<id_code>> {
         static constexpr auto rvalue(hardware &h) {
-            static_assert(array_has(h.ids, id), "No ID in memory!");
-
+            /*static_assert(array_has(h.id_codes, id_code), "No ID in memory!");*/
             size_t ret = h.ind;
             for (size_t i = 0; i < h.ind; i++) {
-                if (id == h.ids[i]) {
+                if (id_code == h.id_codes[i]) {
                     ret = i;
                     return ret;
                 }
@@ -365,52 +364,52 @@ private:
         }
     };
 
-    template<id_type label_id, typename Value, typename... Instructions>
-    struct InstructionsParser<D<label_id, Value>, Instructions...> {
+    template<code_type label_code, typename Value, typename... Instructions>
+    struct InstructionsParser<D<label_code, Value>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
 
-    template<id_type label_id, typename... Instructions>
-    struct InstructionsParser<Jmp<label_id>, Instructions...> {
+    template<code_type label_code, typename... Instructions>
+    struct InstructionsParser<Jmp<label_code>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            LabelParser<label_id, Instructions...>::evaluate(h);
+            LabelParser<label_code, Instructions...>::evaluate(h);
         }
     };
 
-    template<id_type label_id, typename... Instructions>
-    struct InstructionsParser<Jz<label_id>, Instructions...> {
+    template<code_type label_code, typename... Instructions>
+    struct InstructionsParser<Jz<label_code>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.ZF)
-                InstructionsParser<Jmp<label_id>, Instructions...>::evaluate(h);
+                InstructionsParser<Jmp<label_code>, Instructions...>::evaluate(h);
             else InstructionsParser<Instructions...>::evaluate(h);
         }
     };
 
-    template<id_type label_id, typename... Instructions>
-    struct InstructionsParser<Js<label_id>, Instructions...> {
+    template<code_type label_code, typename... Instructions>
+    struct InstructionsParser<Js<label_code>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.SF)
-                InstructionsParser<Jmp<label_id>, Instructions...>::evaluate(h);
+                InstructionsParser<Jmp<label_code>, Instructions...>::evaluate(h);
             else InstructionsParser<Instructions...>::evaluate(h);
         }
     };
 
     //LABEL PARSER
-    template<const id_type label_to_find, typename... Instr>
+    template<const code_type label_to_find, typename... Instr>
     struct LabelParser;
 
-    template<const id_type label_to_find, id_type id, typename... Instr>
-    struct LabelParser<label_to_find, Label<id>, Instr...> {
+    template<const code_type label_to_find, code_type id_code, typename... Instr>
+    struct LabelParser<label_to_find, Label<id_code>, Instr...> {
         constexpr static void evaluate(hardware &h) {
-            if (label_to_find == id)
+            if (label_to_find == id_code)
                 InstructionsParser<Instr...>::evaluate(h);
             else LabelParser<label_to_find, Instr...>::evaluate(h);
         }
     };
 
-    template<const id_type label_to_find, typename A, typename... Instr>
+    template<const code_type label_to_find, typename A, typename... Instr>
     struct LabelParser<label_to_find, A, Instr...> {
         constexpr static void evaluate(hardware &h) {
             LabelParser<label_to_find, Instr...>::evaluate(h);
@@ -418,7 +417,7 @@ private:
     };
 
 
-    template<const id_type label_to_find>
+    template<const code_type label_to_find>
     struct LabelParser<label_to_find> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
             //TODO LABEL NOT FOUND albo zostawić skomentowane
