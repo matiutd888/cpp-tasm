@@ -224,7 +224,7 @@ private:
 
     template<>
     struct DeclarationParser<> {
-        constexpr static void evaluate([[maybe unused]] hardware &h) {
+        constexpr static void evaluate([[maybe_unused]] hardware &h) {
         }
     };
 
@@ -255,7 +255,7 @@ private:
 
     template<auto val>
     struct Evaluator<Num<val>> {
-        static constexpr auto rvalue([[maybe unused]] hardware &h) {
+        static constexpr auto rvalue([[maybe_unused]] hardware &h) {
             return val;
         }
     };
@@ -315,7 +315,7 @@ private:
     // TODO błąd kompilacji?
     template<>
     struct InstructionsParser<> {
-        constexpr static void evaluate([[maybe unused]] hardware &h) {
+        constexpr static void evaluate([[maybe_unused]] hardware &h) {
         }
     };
 
@@ -420,7 +420,7 @@ private:
     /*
     template<const id_type label_to_find>
     struct LabelParser<label_to_find> {
-        constexpr static void evaluate([[maybe unused]] hardware &h) {
+        constexpr static void evaluate([[maybe_unused]] hardware &h) {
             //TODO LABEL NOT FOUND albo zostawić skomentowane
         }
     };*/
