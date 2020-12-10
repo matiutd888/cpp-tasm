@@ -6,35 +6,12 @@
 #include <cstring>
 #include <cassert>
 #include <string>
-
-// Listy
-/*
-struct null_list {
-    using _head = null_list;
-    using _tail = null_list;
-};
-
-template <typename head, typename tail = null_list>
-struct list {
-    using _head = head;
-    using _tail = tail;
-};
-
-template <typename ...args>
-struct make_list;
-
-template <typename head>
-struct make_list<head> {
-    using _list = list<head>;
-};
-
-template <typename head, typename ...tail>
-struct make_list<head, tail...> {
-    using _list = list<head, typename make_list<tail...>::_list >;
-}; */
+#include <regex>
 
 using code_type = uint_fast64_t;
 constexpr code_type id_code_base = 64;
+constexpr code_type id_size_min = 1;
+constexpr code_type id_size_max = 6;
 
 //Poprawna lewa wartość (l-wartość) w TMPAsm to Mem.
 //Poprawne prawe wartości (p-wartość) w TMPAsm to Mem, Num, Lea.
@@ -49,29 +26,33 @@ constexpr code_type id_code_base = 64;
 static constexpr code_type get_code(char c) {
     if (c >= 'a' && c <= 'z')
         c = c + 'A' - 'a';
-
     if (c >= '0' && c <= '9')
         return c - '0' + 1;
     else if (c >= 'A' && c <= 'Z')
         return c - 'A' + '9' - '0' + 2;
-    //TODO exception zamiast return
-    return 0;
+    else
+        throw std::runtime_error{"id_error: not valid sign"};
 }
 
-static constexpr code_type Id(const char *id_str) {//TODO jeśli id_str jest nie poprawny to program nie może się skompilować
+static constexpr code_type Id(const char *id_str) {
     std::basic_string_view<char> s(id_str);
-    code_type p = id_code_base;
     code_type res = 0;
-    bool czy = true;
-    for (char i : s) {
-        if (i == '\0')
-            czy = false;
-        code_type c = 0;
-        if (czy)
-            c = get_code(i);
-        res = res * p + c;
+    if (id_size_min <= s.size() && s.size() <= id_size_max) {
+        code_type p = id_code_base;
+        code_type res = 0;
+        bool czy = true;
+        for (char i : s) {
+            if (i == '\0')
+                czy = false;
+            code_type c = 0;
+            if (czy)
+                c = get_code(i);
+            res = res * p + c;
+        }
+        return res;
+    } else {
+        throw std::runtime_error{"id_error: not valid length"};
     }
-    return res;
 }
 
 //Literały numeryczne Num Literały całkowitoliczbowe. Przykłady poprawnych literałów: Num<13>, Num<0>, Num<-50>.
@@ -107,7 +88,6 @@ struct D;
 // Przykłady poprawnych instrukcji: Mov<Mem<Num<0>>, Num<13>>, Mov<Mem<Lea<Id("abc")>>, Mem<Num<0>>>.
 template<typename Dst, typename Src>
 struct Mov;
-
 
 //Operacje arytmetyczne Add, Sub, Inc, Dec
 //        Add<Arg1, Arg2> – dodawanie
@@ -163,19 +143,21 @@ struct Not;
 //Cmp<Arg1, Arg2> – działa jak operacja odejmowania, ale nie zapisuje wyniku, a tylko ustawia flagi.
 //Arg1 oraz Arg2 muszą być poprawnymi p-wartościami. Przykład poprawnej operacji: Cmp<Mem<Num<0>>, Num<1>>.
 
+template<typename Arg1, typename Arg2>
+struct Cmp;
 
 //Oznaczenie etykiety Label
 //Label<Id> – ustawienie etykiety o identyfikatorze Id. Przykład poprawnej etykiety: Label<Id("label")>.
 
 template<code_type code>
 struct Label;
+
 //Instrukcje skoków Jmp, Jz, Js
 //Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label //TODO liniowe wyszukanie w liście
 //Jz<Label>  – skok warunkowy do Label w przypadku gdy flaga ZF jest ustawiona na 1
 //Js<Label>  – skok warunkowy do Label w przypadku gdy flaga SF jest ustawiona na 1
 //Przykłady poprawnych skoków:
 //Jmp<Id("label")>, Jz<Id("stop")>.
-
 
 template<code_type label_code>
 struct Jmp;
@@ -185,7 +167,6 @@ struct Jz;
 
 template<code_type label_code>
 struct Js;
-
 
 //Szablon klasy Computer powinien mieć następujące parametry: wielkość pamięci – dodatnia wartość określająca liczbę
 //komórek pamięci w słowach; typ słowa – typ całkowitoliczbowy reprezentujący podstawową jednostkę pamięci.
@@ -452,6 +433,15 @@ private:
             auto result = ~Evaluator<Arg>::rvalue(h);
             Evaluator<Arg>::lvalue(h) = result;
             set_flags_logical(h, result);
+            InstructionsParser<Instructions...>::evaluate(h);
+        }
+    };
+
+    template<typename Arg1, typename Arg2, typename... Instructions>
+    struct InstructionsParser<Cmp<Arg1, Arg2>, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
+            auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
+            set_flags_arthmetic(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
         }
     };
