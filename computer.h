@@ -251,15 +251,25 @@ private:
         }
     };
 
+    static constexpr bool array_has(const ids_t &ids, code_type code) {
+        for (const auto code_it : ids) {
+            if (code_it == code) return true;
+        }
+        return false;
+    }
+
     template<code_type code>
     struct Evaluator<Lea<code>> {
         static constexpr auto rvalue(hardware &h) {
+            static_assert(array_has(h.ids, code), "No ID in memory!");
+
+            size_t ret = h.ind;
             for (size_t i = 0; i < h.ind; i++) {
-                if (code == h.ids[i])
-                    return i;
+                if (code == h.ids[i]) {
+                    ret = i;
+                    return ret;
+                }
             }
-            //TODO VALUE NOT FOUND IN MEMORY
-            return 0;
         }
     };
 
