@@ -3,9 +3,7 @@
 3. Czy deklarując na początku nie tracimy poprawności?
    (zmienna istnieje mimo że niezadeklarowana
 4. Nierozróżnianie dużych i małych liter
-5. Listy
-6. operacje logiczne
-7. co jak nie znajdziemy lejbela
 8. jak wykrywać to że ktoś zamiast Id("dupa12") dał nam liczbę
 9. czy dodawać const w templatkach ze zmiennymi?
 10. JAK DZIALA Sub<Mem, Lea>????? //TODO
+11. TODO błędy mają być zgłaszane wyjątkami czy wystarczy  ze się nie skompiluje???
