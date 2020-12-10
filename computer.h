@@ -417,13 +417,13 @@ private:
         }
     };
 
-    /*
-    template<const id_type label_to_find>
+
+    template<const id_t label_to_find>
     struct LabelParser<label_to_find> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
             //TODO LABEL NOT FOUND albo zostawić skomentowane
         }
-    };*/
+    };
 
     template<typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<And<Arg1, Arg2>, Instructions...> {
