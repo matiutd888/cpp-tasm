@@ -161,13 +161,6 @@ struct Cmp;
 template<code_t id_code>
 struct Label;
 
-//Instrukcje skoków Jmp, Jz, Js
-//Jmp<Label> – skok bezwarunkowy do etykiety o identyfikatorze Label
-//Jz<Label>  – skok warunkowy do Label w przypadku gdy flaga ZF jest ustawiona na 1
-//Js<Label>  – skok warunkowy do Label w przypadku gdy flaga SF jest ustawiona na 1
-//Przykłady poprawnych skoków:
-//Jmp<Id("label")>, Jz<Id("stop")>.
-
 template<code_t label_code>
 struct Jmp;
 
@@ -318,6 +311,15 @@ private:
         }
     };
 
+
+    // w celach ignorowania labela pojawiajacego się przed jumpem
+    template<code_t ignore, typename... Instructions>
+    struct InstructionsParser<Label<ignore>, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
+            InstructionsParser<Instructions...>::evaluate(h);
+        }
+    };
+
     template<typename Dst, typename Src, typename... Instructions>
     struct InstructionsParser<Mov<Dst, Src>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
@@ -396,34 +398,6 @@ private:
         }
     };
 
-    //LABEL PARSER
-    template<code_t label_to_find, typename... Instr>
-    struct LabelParser;
-
-    template<code_t label_to_find, code_t id_code, typename... Instr>
-    struct LabelParser<label_to_find, Label<id_code>, Instr...> {
-        constexpr static void evaluate(hardware &h) {
-            if (label_to_find == id_code)
-                InstructionsParser<Instr...>::evaluate(h);
-            else LabelParser<label_to_find, Instr...>::evaluate(h);
-        }
-    };
-
-    template<code_t label_to_find, typename A, typename... Instr>
-    struct LabelParser<label_to_find, A, Instr...> {
-        constexpr static void evaluate(hardware &h) {
-            LabelParser<label_to_find, Instr...>::evaluate(h);
-        }
-    };
-
-
-    template<code_t label_to_find>
-    struct LabelParser<label_to_find> {
-        constexpr static void evaluate([[maybe_unused]] hardware &h) {
-            //TODO LABEL NOT FOUND albo zostawić skomentowane
-        }
-    };
-
     template<typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<And<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
@@ -460,6 +434,34 @@ private:
             auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
             set_flags_arthmetic(h, result);
             InstructionsParser<Instructions...>::evaluate(h);
+        }
+    };
+
+    //LABEL PARSER
+    template<code_t label_to_find, typename... Instr>
+    struct LabelParser;
+
+    template<code_t label_to_find, code_t id_code, typename... Instr>
+    struct LabelParser<label_to_find, Label<id_code>, Instr...> {
+        constexpr static void evaluate(hardware &h) {
+            if (label_to_find == id_code)
+                InstructionsParser<Instr...>::evaluate(h);
+            else LabelParser<label_to_find, Instr...>::evaluate(h);
+        }
+    };
+
+    template<code_t label_to_find, typename A, typename... Instr>
+    struct LabelParser<label_to_find, A, Instr...> {
+        constexpr static void evaluate(hardware &h) {
+            LabelParser<label_to_find, Instr...>::evaluate(h);
+        }
+    };
+
+
+    template<code_t label_to_find>
+    struct LabelParser<label_to_find> {
+        constexpr static void evaluate([[maybe_unused]] hardware &h) {
+            //TODO LABEL NOT FOUND albo zostawić skomentowane
         }
     };
 };
