@@ -5,28 +5,31 @@
 #include <stdexcept>
 #include <array>
 
-using id_type = uint_fast64_t; // Typ zwracany przez Id(str), reprezentuje kod reprezentujący dane id.
-constexpr id_type id_code_base = 38; // Liczba różnych znaków w łańcuchach znaków reprezentujących id + 2.
-constexpr size_t id_size_min = 1;
-constexpr size_t id_size_max = 6;
 
-/*
- * Zwraca kod znaku.
- * Znaki reprezentujące ID są cyframi lub literami.
- * Na początku jeśli 'c' jest małą literą, zamieniane jest na dużą literę.
- * Następnie zwracany jest numer znaku 'c' w ciągu '0', '1', ..., '9', 'A', 'B', ..., 'Z'
- * (gdzie numer znaku '0' jest równy 1, itd).
- * Jeżeli 'c' nie jest ani cyfrą ani literą rzucany jest wyjątek std::logic_error.
- */
-static constexpr id_type get_char_id(char c) {
-    if (c >= 'a' && c <= 'z')
-        c = c + 'A' - 'a';
-    if (c >= '0' && c <= '9')
-        return c - '0' + 1;
-    else if (c >= 'A' && c <= 'Z')
-        return c - 'A' + '9' - '0' + 2;
-    else {
-        throw std::logic_error("NOT VALID ID SIGN!");
+namespace {
+    using id_type = uint_fast64_t; // Typ zwracany przez Id(str), reprezentuje kod reprezentujący dane id.
+    constexpr id_type id_code_base = 38; // Liczba różnych znaków w łańcuchach znaków reprezentujących id + 2.
+    constexpr size_t id_size_min = 1;
+    constexpr size_t id_size_max = 6;
+
+    /*
+     * Zwraca kod znaku.
+     * Znaki reprezentujące ID są cyframi lub literami.
+     * Na początku jeśli 'c' jest małą literą, zamieniane jest na dużą literę.
+     * Następnie zwracany jest numer znaku 'c' w ciągu '0', '1', ..., '9', 'A', 'B', ..., 'Z'
+     * (gdzie numer znaku '0' jest równy 1, itd).
+     * Jeżeli 'c' nie jest ani cyfrą ani literą rzucany jest wyjątek std::logic_error.
+     */
+    constexpr id_type get_char_id(char c) {
+        if (c >= 'a' && c <= 'z')
+            c = c + 'A' - 'a';
+        if (c >= '0' && c <= '9')
+            return c - '0' + 1;
+        else if (c >= 'A' && c <= 'Z')
+            return c - 'A' + '9' - '0' + 2;
+        else {
+            throw std::logic_error("NOT VALID ID SIGN!");
+        }
     }
 }
 
@@ -63,7 +66,7 @@ struct Lea;
 template<typename ...T>
 struct Program;
 
-template <typename I>
+template<typename I>
 struct Instr;
 
 template<id_type id, typename Value>
@@ -112,11 +115,11 @@ template<size_t size, typename word_t>
 struct Computer {
 private:
     using memory_t = std::array<word_t, size>; // Typ reprezentujacy tablicę przechowującą efektywne wartości
-                                               // kolejnych adresów pamięci komputera.
+    // kolejnych adresów pamięci komputera.
 
     using ids_t = std::array<id_type, size>; // Typ reprezentujący tablicę która dla komórki pamięci o adresie 'i'
-                                             // przechowuje identyfikator zmiennej w niej
-                                             // przechowywanej.
+    // przechowuje identyfikator zmiennej w niej
+    // przechowywanej.
 
     // Struktura reprezentująca aktualny stan komputera.
     struct hardware {
