@@ -277,11 +277,20 @@ private:
     template<typename... Instructions>
     struct InstructionsParser;
 
-    // TODO błąd kompilacji?
+
+    // Compilation error
+    template<typename ...OrginalInstructions, typename A, typename ...Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, A, Instructions...> {
+        constexpr static void evaluate([[maybe_unused]] hardware &h) {
+            throw std::logic_error("COMPILATION ERROR!");
+        }
+    };
+
+    // koniec programu
     template<typename ...OrginalInstructions>
     struct InstructionsParser<Program<OrginalInstructions...>> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
-            throw std::logic_error("COMPILATION ERROR");
+
         }
     };
 
