@@ -6,6 +6,8 @@
 #include <array>
 
 
+struct Instr {};
+
 namespace {
     using id_type = uint_fast64_t; // Typ zwracany przez Id(str), reprezentuje kod reprezentujący dane id.
     constexpr id_type id_code_base = 38; // Liczba różnych znaków w łańcuchach znaków reprezentujących id + 2.
@@ -31,9 +33,6 @@ namespace {
             throw std::logic_error("NOT VALID ID SIGN!");
         }
     }
-
-    struct Instr {
-    };
 }
 
 /*
