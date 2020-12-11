@@ -31,8 +31,7 @@ namespace {
         }
     }
 
-    struct Instr {
-    };
+    struct Instr {};
 }
 
 /*
@@ -78,35 +77,35 @@ struct Mov : Instr {
 
 template<typename Arg1, typename Arg2>
 struct Add : Instr {
-};
+};;
 
 template<typename Arg1, typename Arg2>
 struct Sub : Instr {
-};
+};;
 
 template<typename Arg1>
 struct Inc : Instr {
-};
+};;
 
 template<typename Arg1>
 struct Dec : Instr {
-};
+};;
 
 template<typename Arg1, typename Arg2>
 struct And : Instr {
-};
+};;
 
 template<typename Arg1, typename Arg2>
 struct Or : Instr {
-};
+};;
 
 template<typename Arg>
 struct Not : Instr {
-};
+};;
 
 template<typename Arg1, typename Arg2>
 struct Cmp : Instr {
-};
+};;
 
 template<id_type id>
 struct Label : Instr {
@@ -114,15 +113,15 @@ struct Label : Instr {
 
 template<id_type label>
 struct Jmp : Instr {
-};
+};;
 
 template<id_type label>
 struct Jz : Instr {
-};
+};;
 
 template<id_type label>
 struct Js : Instr {
-};
+};;
 
 template<size_t size, typename word_t>
 struct Computer {
@@ -257,7 +256,6 @@ private:
         }
     };
 
-
     // Struktura udostępniająca metodę deklarującą wszystkie zmienne zgodnie z kolejnością deklaracji.
     template<typename... Instr>
     struct DeclarationParser;
@@ -291,75 +289,10 @@ private:
         }
     };
 
-    //EVALUATOR
-    template<typename V>
-    struct Evaluator;
-
-    template<auto val>
-    struct Evaluator<Num<val>> {
-        static constexpr auto rvalue([[maybe_unused]] hardware &h) {
-            return val;
-        }
-    };
-
-    static constexpr bool array_has(const ids_t &ids, id_type id) {
-        for (const auto id_it : ids) {
-            if (id_it == id) return true;
-        }
-        return false;
-    }
-
-    template<id_type id>
-    struct Evaluator<Lea<id>> {
-        static constexpr auto rvalue(hardware &h) {
-            size_t ret = h.ind;
-            for (size_t i = 0; i < h.ind; i++) {
-                if (id == h.ids[i]) {
-                    ret = i;
-                    return ret;
-                }
-            }
-            throw std::logic_error("NO ID!");
-        }
-    };
-
-    template<typename B>
-    struct Evaluator<Mem<B>> {
-        static constexpr auto rvalue(hardware &h) {
-            return h.mem[Evaluator<B>::rvalue(h)];
-        }
-
-        static constexpr auto &lvalue(hardware &h) {
-            return h.mem[Evaluator<B>::rvalue(h)];
-        }
-    };
-
-    template<typename P>
-    struct ComputerProgram;
-
-    template<typename... Instructions>
-    struct ComputerProgram<Program<Instructions...>> {
-        constexpr static void run(hardware &h) {
-            InstructionsParser<Program<Instructions...>, Instructions...>::evaluate(h);
-        }
-
-        constexpr static void declare_variables(hardware &h) {
-            DeclarationParser<Instructions...>::evaluate(h);
-        }
-    };
-
     template<typename... Instructions>
     struct InstructionsParser;
 
-    // Compilation error
-    template<typename ...OrginalInstructions, typename Wrong, typename ...Instructions>
-    struct InstructionsParser<Program<OrginalInstructions...>, Wrong, Instructions...> {
-        constexpr static void evaluate([[maybe_unused]] hardware &h) {
-            throw std::logic_error("WRONG INSTRUCTIONS!");
-        }
-    };
-
-    // koniec programu
+    // Koniec programu.
     template<typename ...OrginalInstructions>
     struct InstructionsParser<Program<OrginalInstructions...>> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
@@ -492,22 +425,22 @@ private:
         }
     };
 
-    template<typename Program, id_type label_to_find, typename... Instr>
+    template<typename Program, id_type label_to_find, typename... Instructions>
     struct LabelParser;
 
-    template<typename ...OrginalInstructions, id_type label_to_find, id_type id, typename... Instr>
-    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id>, Instr...> {
+    template<typename ...OrginalInstructions, id_type label_to_find, id_type id, typename... Instructions>
+    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (label_to_find == id)
-                InstructionsParser<Program<OrginalInstructions...>, Instr...>::evaluate(h);
-            else LabelParser<Program<OrginalInstructions...>, label_to_find, Instr...>::evaluate(h);
+                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+            else LabelParser<Program<OrginalInstructions...>, label_to_find, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename ...OrginalInstructions, id_type label_to_find, typename Skip, typename... Instr>
-    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Skip, Instr...> {
+    template<typename ...OrginalInstructions, id_type label_to_find, typename Skip, typename... Instructions>
+    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Skip, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            LabelParser<Program<OrginalInstructions...>, label_to_find, Instr...>::evaluate(h);
+            LabelParser<Program<OrginalInstructions...>, label_to_find, Instructions...>::evaluate(h);
         }
     };
 
