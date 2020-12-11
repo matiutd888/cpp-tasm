@@ -134,10 +134,10 @@ struct Cmp;
 template<id_type id>
 struct Label;
 
-template<id_type label_code>
+template<id_type label_id>
 struct Jmp;
 
-template<id_type label_code>
+template<id_type label_id>
 struct Jz;
 
 template<id_type label_id>
@@ -226,9 +226,9 @@ private:
         }
     };
 
-    static constexpr bool array_has(const ids_t &ids, id_type code) {
-        for (const auto code_it : ids) {
-            if (code_it == code) return true;
+    static constexpr bool array_has(const ids_t &ids, id_type id) {
+        for (const auto id_it : ids) {
+            if (id_it == id) return true;
         }
         return false;
     }
