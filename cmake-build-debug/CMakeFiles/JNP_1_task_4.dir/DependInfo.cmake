@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/computer_example.cc" "C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/cmake-build-debug/CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj"
+  "C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/tests/computer_tests.cc" "C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/cmake-build-debug/CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

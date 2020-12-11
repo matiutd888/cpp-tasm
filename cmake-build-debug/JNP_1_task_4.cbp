@@ -126,11 +126,11 @@
 			<Option target="JNP_1_task_4"/>
 			<Option target="TEST1"/>
 		</Unit>
-		<Unit filename="C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/computer_example.cc">
-			<Option target="JNP_1_task_4"/>
-		</Unit>
 		<Unit filename="C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/test1.cc">
 			<Option target="TEST1"/>
+		</Unit>
+		<Unit filename="C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/tests/computer_tests.cc">
+			<Option target="JNP_1_task_4"/>
 		</Unit>
 		<Unit filename="C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>

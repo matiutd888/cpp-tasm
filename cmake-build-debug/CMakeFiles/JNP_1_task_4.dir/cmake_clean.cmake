@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj"
+  "CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj"
   "JNP_1_task_4.exe"
   "JNP_1_task_4.exe.manifest"
   "JNP_1_task_4.pdb"

@@ -135,33 +135,6 @@ TEST1/fast:
 	$(MAKE) -f CMakeFiles\TEST1.dir\build.make CMakeFiles/TEST1.dir/build
 .PHONY : TEST1/fast
 
-computer_example.obj: computer_example.cc.obj
-
-.PHONY : computer_example.obj
-
-# target to build an object file
-computer_example.cc.obj:
-	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj
-.PHONY : computer_example.cc.obj
-
-computer_example.i: computer_example.cc.i
-
-.PHONY : computer_example.i
-
-# target to preprocess a source file
-computer_example.cc.i:
-	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/computer_example.cc.i
-.PHONY : computer_example.cc.i
-
-computer_example.s: computer_example.cc.s
-
-.PHONY : computer_example.s
-
-# target to generate assembly for a file
-computer_example.cc.s:
-	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/computer_example.cc.s
-.PHONY : computer_example.cc.s
-
 test1.obj: test1.cc.obj
 
 .PHONY : test1.obj
@@ -189,6 +162,33 @@ test1.cc.s:
 	$(MAKE) -f CMakeFiles\TEST1.dir\build.make CMakeFiles/TEST1.dir/test1.cc.s
 .PHONY : test1.cc.s
 
+tests/computer_tests.obj: tests/computer_tests.cc.obj
+
+.PHONY : tests/computer_tests.obj
+
+# target to build an object file
+tests/computer_tests.cc.obj:
+	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj
+.PHONY : tests/computer_tests.cc.obj
+
+tests/computer_tests.i: tests/computer_tests.cc.i
+
+.PHONY : tests/computer_tests.i
+
+# target to preprocess a source file
+tests/computer_tests.cc.i:
+	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.i
+.PHONY : tests/computer_tests.cc.i
+
+tests/computer_tests.s: tests/computer_tests.cc.s
+
+.PHONY : tests/computer_tests.s
+
+# target to generate assembly for a file
+tests/computer_tests.cc.s:
+	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.s
+.PHONY : tests/computer_tests.cc.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -199,12 +199,12 @@ help:
 	@echo ... TEST1
 	@echo ... edit_cache
 	@echo ... rebuild_cache
-	@echo ... computer_example.obj
-	@echo ... computer_example.i
-	@echo ... computer_example.s
 	@echo ... test1.obj
 	@echo ... test1.i
 	@echo ... test1.s
+	@echo ... tests/computer_tests.obj
+	@echo ... tests/computer_tests.i
+	@echo ... tests/computer_tests.s
 .PHONY : help
 
 

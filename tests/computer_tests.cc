@@ -1,4 +1,4 @@
-#include "computer.h"
+#include "../computer.h"
 #include <array>
 #include <iostream>
 

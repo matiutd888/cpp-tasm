@@ -56,27 +56,27 @@ include CMakeFiles/JNP_1_task_4.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/JNP_1_task_4.dir/flags.make
 
-CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj: CMakeFiles/JNP_1_task_4.dir/flags.make
-CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj: ../computer_example.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\cmake-build-debug\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\JNP_1_task_4.dir\computer_example.cc.obj -c "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\computer_example.cc"
+CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj: CMakeFiles/JNP_1_task_4.dir/flags.make
+CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj: ../tests/computer_tests.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\cmake-build-debug\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\JNP_1_task_4.dir\tests\computer_tests.cc.obj -c "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\tests\computer_tests.cc"
 
-CMakeFiles/JNP_1_task_4.dir/computer_example.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/JNP_1_task_4.dir/computer_example.cc.i"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\computer_example.cc" > CMakeFiles\JNP_1_task_4.dir\computer_example.cc.i
+CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.i"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\tests\computer_tests.cc" > CMakeFiles\JNP_1_task_4.dir\tests\computer_tests.cc.i
 
-CMakeFiles/JNP_1_task_4.dir/computer_example.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/JNP_1_task_4.dir/computer_example.cc.s"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\computer_example.cc" -o CMakeFiles\JNP_1_task_4.dir\computer_example.cc.s
+CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.s"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\tests\computer_tests.cc" -o CMakeFiles\JNP_1_task_4.dir\tests\computer_tests.cc.s
 
 # Object files for target JNP_1_task_4
 JNP_1_task_4_OBJECTS = \
-"CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj"
+"CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj"
 
 # External object files for target JNP_1_task_4
 JNP_1_task_4_EXTERNAL_OBJECTS =
 
-JNP_1_task_4.exe: CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj
+JNP_1_task_4.exe: CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj
 JNP_1_task_4.exe: CMakeFiles/JNP_1_task_4.dir/build.make
 JNP_1_task_4.exe: CMakeFiles/JNP_1_task_4.dir/linklibs.rsp
 JNP_1_task_4.exe: CMakeFiles/JNP_1_task_4.dir/objects1.rsp
