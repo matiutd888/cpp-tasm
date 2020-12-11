@@ -31,13 +31,16 @@ namespace {
             throw std::logic_error("NOT VALID ID SIGN!");
         }
     }
+
+    struct Instr {
+    };
 }
 
 /*
  * Zwraca zakodowane różnowartościowo id reprezentowane przez łańcuch 'id_str'.
  * Jeżeli długość 'id_str' nie jest z zakresu {1, ..., 6} rzuca std::logic_error.
  */
-static constexpr id_type Id(const char *id_str) {
+constexpr id_type Id(const char *id_str) {
     std::basic_string_view<char> s(id_str);
     if (id_size_min <= s.size() && s.size() <= id_size_max) {
         id_type p = id_code_base;
@@ -66,50 +69,61 @@ struct Lea;
 template<typename ...T>
 struct Program;
 
-template<typename I>
-struct Instr;
-
 template<id_type id, typename Value>
-struct D;
+struct D : Instr {
+};
 
 template<typename Dst, typename Src>
-struct Mov;
+struct Mov : Instr {
+};
 
 template<typename Arg1, typename Arg2>
-struct Add;
+struct Add : Instr {
+};;
 
 template<typename Arg1, typename Arg2>
-struct Sub;
+struct Sub : Instr {
+};;
 
 template<typename Arg1>
-struct Inc;
+struct Inc : Instr {
+};;
 
 template<typename Arg1>
-struct Dec;
+struct Dec : Instr {
+};;
 
 template<typename Arg1, typename Arg2>
-struct And;
+struct And : Instr {
+};;
 
 template<typename Arg1, typename Arg2>
-struct Or;
+struct Or : Instr {
+};;
 
 template<typename Arg>
-struct Not;
+struct Not : Instr {
+};;
 
 template<typename Arg1, typename Arg2>
-struct Cmp;
+struct Cmp : Instr {
+};;
 
 template<id_type id>
-struct Label;
+struct Label : Instr {
+};;
 
 template<id_type label>
-struct Jmp;
+struct Jmp : Instr {
+};;
 
 template<id_type label>
-struct Jz;
+struct Jz : Instr {
+};;
 
 template<id_type label>
-struct Js;
+struct Js : Instr {
+};;
 
 template<size_t size, typename word_t>
 struct Computer {
@@ -133,6 +147,8 @@ private:
 public:
     template<typename Prog>
     static constexpr std::array<word_t, size> boot() {
+        if (!ComputerProgram<Prog>::check_corectness())
+            throw std::logic_error("INVALID INSTRUCTION!");
         hardware h = {memory_t(), ids_t(), false, false, 0};
         ComputerProgram<Prog>::declare_variables(h);
         ComputerProgram<Prog>::run(h);
@@ -160,36 +176,21 @@ private:
         else h.ZF = 0;
     }
 
-    // Struktura udostępniająca metodę deklarującą wszystkie zmienne zgodnie z kolejnością deklaracji.
-    template<typename... Instr>
-    struct DeclarationParser;
+    template<typename P>
+    struct ComputerProgram;
 
-    template<>
-    struct DeclarationParser<> {
-        // Jeżeli nie mamy już deklaracji do zadeklarowania, nic nie robimy.
-        constexpr static void evaluate([[maybe_unused]] hardware &h) {
+    template<typename... Instructions>
+    struct ComputerProgram<Program<Instructions...>> {
+        constexpr static void run(hardware &h) {
+            InstructionsParser<Program<Instructions...>, Instructions...>::evaluate(h);
         }
-    };
 
-    // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
-    template<id_type id, typename Value, typename... Instructions>
-    struct DeclarationParser<D<id, Value>, Instructions...> {
-        constexpr static void evaluate(hardware &h) {
-            if (h.ind < h.mem.size()) {
-                h.ids[h.ind] = id;
-                h.mem[h.ind] = Evaluator<Value>::rvalue(h);
-                h.ind++;
-            } else {
-                throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE!");
-            }
+        constexpr static void declare_variables(hardware &h) {
             DeclarationParser<Instructions...>::evaluate(h);
         }
-    };
 
-    template<typename Skip, typename... Instructions>
-    struct DeclarationParser<Skip, Instructions...> {
-        constexpr static void evaluate(hardware &h) {
-            DeclarationParser<Instructions...>::evaluate(h);
+        constexpr static bool check_corectness() {
+            return CorrectnessChecker<Instructions...>::check();
         }
     };
 
@@ -236,16 +237,62 @@ private:
         }
     };
 
-    template<typename P>
-    struct ComputerProgram;
+    // Struktura udostępniająca metodę sprawdzającą, czy instrukcje w programie są rzeczywiście instrukcjami.
+    template<typename... Instr>
+    struct CorrectnessChecker;
 
-    template<typename... Instructions>
-    struct ComputerProgram<Program<Instructions...>> {
-        constexpr static void run(hardware &h) {
-            InstructionsParser<Program<Instructions...>, Instructions...>::evaluate(h);
+    template<>
+    struct CorrectnessChecker<> {
+        // Jeżeli nie mamy już żadnej instrukcji do sprawdzenia, wszystkie były poprawne.
+        constexpr static bool check() {
+            return true;
         }
+    };
 
-        constexpr static void declare_variables(hardware &h) {
+    // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
+    template<typename... Instructions>
+    struct CorrectnessChecker<Instr, Instructions...> {
+        constexpr static bool check() {
+            return CorrectnessChecker<Instructions...>::check();
+        }
+    };
+
+    template<typename Wrong, typename... Instructions>
+    struct CorrectnessChecker<Wrong, Instructions...> {
+        constexpr static bool check() {
+            return false;
+        }
+    };
+
+    // Struktura udostępniająca metodę deklarującą wszystkie zmienne zgodnie z kolejnością deklaracji.
+    template<typename... Instr>
+    struct DeclarationParser;
+
+    template<>
+    struct DeclarationParser<> {
+        // Jeżeli nie mamy już deklaracji do zadeklarowania, nic nie robimy.
+        constexpr static void evaluate([[maybe_unused]] hardware &h) {
+        }
+    };
+
+    // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
+    template<id_type id, typename Value, typename... Instructions>
+    struct DeclarationParser<D<id, Value>, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
+            if (h.ind < h.mem.size()) {
+                h.ids[h.ind] = id;
+                h.mem[h.ind] = Evaluator<Value>::rvalue(h);
+                h.ind++;
+            } else {
+                throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE!");
+            }
+            DeclarationParser<Instructions...>::evaluate(h);
+        }
+    };
+
+    template<typename Skip, typename... Instructions>
+    struct DeclarationParser<Skip, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
             DeclarationParser<Instructions...>::evaluate(h);
         }
     };
@@ -253,15 +300,7 @@ private:
     template<typename... Instructions>
     struct InstructionsParser;
 
-    // Compilation error
-    template<typename ...OrginalInstructions, typename Wrong, typename ...Instructions>
-    struct InstructionsParser<Program<OrginalInstructions...>, Wrong, Instructions...> {
-        constexpr static void evaluate([[maybe_unused]] hardware &h) {
-            throw std::logic_error("WRONG INSTRUCTIONS!");
-        }
-    };
-
-    // koniec programu
+    // Koniec programu.
     template<typename ...OrginalInstructions>
     struct InstructionsParser<Program<OrginalInstructions...>> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
@@ -394,22 +433,22 @@ private:
         }
     };
 
-    template<typename Program, id_type label_to_find, typename... Instr>
+    template<typename Program, id_type label_to_find, typename... Instructions>
     struct LabelParser;
 
-    template<typename ...OrginalInstructions, id_type label_to_find, id_type id, typename... Instr>
-    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id>, Instr...> {
+    template<typename ...OrginalInstructions, id_type label_to_find, id_type id, typename... Instructions>
+    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (label_to_find == id)
-                InstructionsParser<Program<OrginalInstructions...>, Instr...>::evaluate(h);
-            else LabelParser<Program<OrginalInstructions...>, label_to_find, Instr...>::evaluate(h);
+                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+            else LabelParser<Program<OrginalInstructions...>, label_to_find, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename ...OrginalInstructions, id_type label_to_find, typename Skip, typename... Instr>
-    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Skip, Instr...> {
+    template<typename ...OrginalInstructions, id_type label_to_find, typename... Instructions>
+    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Instr, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            LabelParser<Program<OrginalInstructions...>, label_to_find, Instr...>::evaluate(h);
+            LabelParser<Program<OrginalInstructions...>, label_to_find, Instructions...>::evaluate(h);
         }
     };
 
