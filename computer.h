@@ -236,7 +236,6 @@ private:
     template<id_type id>
     struct Evaluator<Lea<id>> {
         static constexpr auto rvalue(hardware &h) {
-            /*static_assert(array_has(h.ids, id), "No ID in memory!");*/
             size_t ret = h.ind;
             for (size_t i = 0; i < h.ind; i++) {
                 if (id == h.ids[i]) {
@@ -244,6 +243,7 @@ private:
                     return ret;
                 }
             }
+            throw std::logic_error("NO ID!");
         }
     };
 
