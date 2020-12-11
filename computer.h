@@ -291,7 +291,7 @@ private:
     template<typename... Instructions>
     struct ComputerProgram<Program<Instructions...>> {
         constexpr static void run(hardware &h) {
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<Instructions...>, Instructions...>::evaluate(h);
         }
 
         constexpr static void declare_variables(hardware &h) {
@@ -305,161 +305,161 @@ private:
     struct InstructionsParser;
 
     // TODO błąd kompilacji?
-    template<>
-    struct InstructionsParser<> {
+    template<typename ...OrginalInstructions>
+    struct InstructionsParser<Program<OrginalInstructions...>> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
         }
     };
 
 
     // w celach ignorowania labela pojawiajacego się przed jumpem
-    template<code_t ignore, typename... Instructions>
-    struct InstructionsParser<Label<ignore>, Instructions...> {
+    template<typename ...OrginalInstructions, code_t ignore, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Label<ignore>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Dst, typename Src, typename... Instructions>
-    struct InstructionsParser<Mov<Dst, Src>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Dst, typename Src, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Mov<Dst, Src>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             Evaluator<Dst>::lvalue(h) = Evaluator<Src>::rvalue(h);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Arg1, typename Arg2, typename... Instructions>
-    struct InstructionsParser<Add<Arg1, Arg2>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Add<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             auto result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
             Evaluator<Arg1>::lvalue(h) = result;
             set_flags_arthmetic(h, result);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Arg1, typename Arg2, typename... Instructions>
-    struct InstructionsParser<Sub<Arg1, Arg2>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Sub<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
             Evaluator<Arg1>::lvalue(h) = result;
             set_flags_arthmetic(h, result);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Arg1, typename... Instructions>
-    struct InstructionsParser<Inc<Arg1>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Arg1, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Inc<Arg1>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             auto result = Evaluator<Arg1>::lvalue(h)++;
             set_flags_arthmetic(h, result);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Arg1, typename... Instructions>
-    struct InstructionsParser<Dec<Arg1>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Arg1, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Dec<Arg1>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             auto result = Evaluator<Arg1>::lvalue(h)--;
             set_flags_arthmetic(h, result);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<code_t label_code, typename Value, typename... Instructions>
-    struct InstructionsParser<D<label_code, Value>, Instructions...> {
+    template<typename ...OrginalInstructions, code_t label_code, typename Value, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, D<label_code, Value>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<code_t label_code, typename... Instructions>
-    struct InstructionsParser<Jmp<label_code>, Instructions...> {
+    template<typename ...OrginalInstructions, code_t label_code, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Jmp<label_code>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            LabelParser<label_code, Instructions...>::evaluate(h);
+            LabelParser<Program<OrginalInstructions...>, label_code, OrginalInstructions...>::evaluate(h);
         }
     };
 
-    template<code_t label_code, typename... Instructions>
-    struct InstructionsParser<Jz<label_code>, Instructions...> {
+    template<typename ...OrginalInstructions, code_t label_code, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Jz<label_code>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.ZF)
-                InstructionsParser<Jmp<label_code>, Instructions...>::evaluate(h);
-            else InstructionsParser<Instructions...>::evaluate(h);
+                InstructionsParser<Program<OrginalInstructions...>, Jmp<label_code>, Instructions...>::evaluate(h);
+            else InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<code_t label_code, typename... Instructions>
-    struct InstructionsParser<Js<label_code>, Instructions...> {
+    template<typename ...OrginalInstructions, code_t label_code, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Js<label_code>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.SF)
-                InstructionsParser<Jmp<label_code>, Instructions...>::evaluate(h);
-            else InstructionsParser<Instructions...>::evaluate(h);
+                InstructionsParser<Program<OrginalInstructions...>, Jmp<label_code>, Instructions...>::evaluate(h);
+            else InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Arg1, typename Arg2, typename... Instructions>
-    struct InstructionsParser<And<Arg1, Arg2>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, And<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             auto result = Evaluator<Arg1>::rvalue(h) & Evaluator<Arg2>::rvalue(h);
             Evaluator<Arg1>::lvalue(h) = result;
             set_flags_logical(h, result);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Arg1, typename Arg2, typename... Instructions>
-    struct InstructionsParser<Or<Arg1, Arg2>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Or<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             auto result = Evaluator<Arg1>::rvalue(h) | Evaluator<Arg2>::rvalue(h);
             Evaluator<Arg1>::lvalue(h) = result;
             set_flags_logical(h, result);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Arg, typename... Instructions>
-    struct InstructionsParser<Not<Arg>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Arg, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Not<Arg>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             auto result = ~Evaluator<Arg>::rvalue(h);
             Evaluator<Arg>::lvalue(h) = result;
             set_flags_logical(h, result);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename Arg1, typename Arg2, typename... Instructions>
-    struct InstructionsParser<Cmp<Arg1, Arg2>, Instructions...> {
+    template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Cmp<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
             set_flags_arthmetic(h, result);
-            InstructionsParser<Instructions...>::evaluate(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
 
     //LABEL PARSER
-    template<code_t label_to_find, typename... Instr>
+    template<typename Program, code_t label_to_find, typename... Instr>
     struct LabelParser;
 
-    template<code_t label_to_find, code_t id_code, typename... Instr>
-    struct LabelParser<label_to_find, Label<id_code>, Instr...> {
+    template<typename ...OrginalInstructions, code_t label_to_find, code_t id_code, typename... Instr>
+    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id_code>, Instr...> {
         constexpr static void evaluate(hardware &h) {
             if (label_to_find == id_code)
-                InstructionsParser<Instr...>::evaluate(h);
-            else LabelParser<label_to_find, Instr...>::evaluate(h);
+                InstructionsParser<Program<OrginalInstructions...>, Instr...>::evaluate(h);
+            else LabelParser<Program<OrginalInstructions...>, label_to_find, Instr...>::evaluate(h);
         }
     };
 
-    template<code_t label_to_find, typename A, typename... Instr>
-    struct LabelParser<label_to_find, A, Instr...> {
+    template<typename ...OrginalInstructions, code_t label_to_find, typename A, typename... Instr>
+    struct LabelParser<Program<OrginalInstructions...>, label_to_find, A, Instr...> {
         constexpr static void evaluate(hardware &h) {
-            LabelParser<label_to_find, Instr...>::evaluate(h);
+            LabelParser<Program<OrginalInstructions...>, label_to_find, Instr...>::evaluate(h);
         }
     };
 
 
-    template<code_t label_to_find>
-    struct LabelParser<label_to_find> {
+    template<typename ...OrginalInstructions, code_t label_to_find>
+    struct LabelParser<Program<OrginalInstructions...>, label_to_find> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
             //TODO LABEL NOT FOUND albo zostawić skomentowane
         }
