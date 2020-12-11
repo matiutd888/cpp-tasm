@@ -11,14 +11,12 @@ namespace {
     constexpr size_t id_size_min = 1;
     constexpr size_t id_size_max = 6;
 
-    /*
-     * Zwraca kod znaku.
-     * Znaki reprezentujące ID są cyframi lub literami.
-     * Na początku jeśli 'c' jest małą literą, zamieniane jest na dużą literę.
-     * Następnie zwracany jest numer znaku 'c' w ciągu '0', '1', ..., '9', 'A', 'B', ..., 'Z'
-     * (gdzie numer znaku '0' jest równy 1, itd).
-     * Jeżeli 'c' nie jest ani cyfrą ani literą rzucany jest wyjątek std::logic_error.
-     */
+    // Zwraca kod znaku.
+    // Znaki reprezentujące ID są cyframi lub literami.
+    // Na początku jeśli 'c' jest małą literą, zamieniane jest na dużą literę.
+    // Następnie zwracany jest numer znaku 'c' w ciągu '0', '1', ..., '9', 'A', 'B', ..., 'Z'
+    // (gdzie numer znaku '0' jest równy 1, itd).
+    // Jeżeli 'c' nie jest ani cyfrą ani literą rzucany jest wyjątek std::logic_error.
     constexpr id_type get_char_id(char c) {
         if (c >= 'a' && c <= 'z')
             c = c + 'A' - 'a';
@@ -35,10 +33,8 @@ namespace {
     };
 }
 
-/*
- * Zwraca zakodowane różnowartościowo id reprezentowane przez łańcuch 'id_str'.
- * Jeżeli długość 'id_str' nie jest z zakresu {1, ..., 6} rzuca std::logic_error.
- */
+// Zwraca zakodowane różnowartościowo id reprezentowane przez łańcuch 'id_str'.
+// Jeżeli długość 'id_str' nie jest z zakresu {1, ..., 6} rzuca std::logic_error.
 constexpr id_type Id(const char *id_str) {
     std::basic_string_view<char> s(id_str);
     if (id_size_min <= s.size() && s.size() <= id_size_max) {
@@ -175,7 +171,7 @@ private:
         else h.ZF = 0;
     }
 
-    template<typename P>
+    template<typename Prog>
     struct ComputerProgram;
 
     template<typename... Instructions>
@@ -193,8 +189,7 @@ private:
         }
     };
 
-    //EVALUATOR
-    template<typename V>
+    template<typename T>
     struct Evaluator;
 
     template<auto val>
@@ -203,7 +198,8 @@ private:
             return val;
         }
     };
-
+	
+	// Sprawdza, czy w tablicy 'ids' istnieje wartośći 'id'.
     static constexpr bool array_has(const ids_t &ids, id_type id) {
         for (const auto id_it : ids) {
             if (id_it == id) return true;
@@ -225,14 +221,14 @@ private:
         }
     };
 
-    template<typename B>
-    struct Evaluator<Mem<B>> {
+    template<typename T>
+    struct Evaluator<Mem<T>> {
         static constexpr auto rvalue(hardware &h) {
-            return h.mem[Evaluator<B>::rvalue(h)];
+            return h.mem[Evaluator<T>::rvalue(h)];
         }
 
         static constexpr auto &lvalue(hardware &h) {
-            return h.mem[Evaluator<B>::rvalue(h)];
+            return h.mem[Evaluator<T>::rvalue(h)];
         }
     };
 
@@ -290,20 +286,23 @@ private:
         }
     };
 
+	// Struktura zawiera metodę 'evaluate', która wykonuje kolejne instrukcje programu.
+	// Zmiany przechowywane są w argumencie do metody typu 'hardware' przekazywanym
+	// przez referencję.
     template<typename... Instructions>
     struct InstructionsParser;
 
-    // Koniec programu.
     template<typename ...OrginalInstructions>
     struct InstructionsParser<Program<OrginalInstructions...>> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
-
+		
         }
     };
 
-    // w celach ignorowania labela pojawiajacego się przed jumpem
-    template<typename ...OrginalInstructions, id_type ignore, typename... Instructions>
-    struct InstructionsParser<Program<OrginalInstructions...>, Label<ignore>, Instructions...> {
+	// Jeżeli instrukcja nie została zmatchowana, skipujemy ją (nie rzucamy wyjątku, ponieważ poprawność
+	// instrukcji sprawdzana jest w innym miejscu.
+    template<typename ...OrginalInstructions, typename Skip, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Skip, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
@@ -351,13 +350,6 @@ private:
         constexpr static void evaluate(hardware &h) {
             auto result = Evaluator<Arg1>::lvalue(h)--;
             set_flags_arthmetic(h, result);
-            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
-        }
-    };
-
-    template<typename ...OrginalInstructions, id_type label_id, typename Value, typename... Instructions>
-    struct InstructionsParser<Program<OrginalInstructions...>, D<label_id, Value>, Instructions...> {
-        constexpr static void evaluate(hardware &h) {
             InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
     };
@@ -426,9 +418,15 @@ private:
         }
     };
 
+	// Zawiera metodę 'evaluate' znajdującą pierwsze wystąpienie Label<label_to_find>.
+	// Po znalezieniu wywoływane jest analizowanie pozostałych instrukcji (InstructionsParser::evaluate).
+	// Jeżeli label nie zostanie odnaleziony rzucany jest wyjątek.
     template<typename Program, id_type label_to_find, typename... Instructions>
     struct LabelParser;
 
+	// Jeżeli trafiliśmy na jakiś Label, sprawdzamy czy to ten, którego szukamy.
+	// Jeżeli tak, to kończymy szukanie i wywołujemy 'evaluate' z 'InstructionsParser' na pozostałych instrukcjach.
+	// Jeżeli nie, kontynuujemy szukanie.
     template<typename ...OrginalInstructions, id_type label_to_find, id_type id, typename... Instructions>
     struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
