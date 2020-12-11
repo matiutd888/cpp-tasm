@@ -5,9 +5,6 @@
 #include <stdexcept>
 #include <array>
 
-
-struct Instr {};
-
 namespace {
     using id_type = uint_fast64_t; // Typ zwracany przez Id(str), reprezentuje kod reprezentujący dane id.
     constexpr id_type id_code_base = 38; // Liczba różnych znaków w łańcuchach znaków reprezentujących id + 2.
@@ -33,6 +30,8 @@ namespace {
             throw std::logic_error("NOT VALID ID SIGN!");
         }
     }
+
+    struct Instr {};
 }
 
 /*
@@ -248,18 +247,12 @@ private:
         }
     };
 
-    // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
-    template<typename... Instructions>
-    struct CorrectnessChecker<Instr, Instructions...> {
+    template<typename T, typename... Instructions>
+    struct CorrectnessChecker<T, Instructions...> {
         constexpr static bool check() {
-            return CorrectnessChecker<Instructions...>::check();
-        }
-    };
-
-    template<typename Wrong, typename... Instructions>
-    struct CorrectnessChecker<Wrong, Instructions...> {
-        constexpr static bool check() {
-            return false;
+            if (std::is_base_of_v<Instr, T>()) {
+                return CorrectnessChecker<Instructions...>::check();
+            } else return false;
         }
     };
 
