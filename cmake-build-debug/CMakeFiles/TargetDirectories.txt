@@ -1,0 +1,3 @@
+/Users/aryski/3SEM/JNP/JNP-1-task-4/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/aryski/3SEM/JNP/JNP-1-task-4/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/aryski/3SEM/JNP/JNP-1-task-4/cmake-build-debug/CMakeFiles/JNP_1_task_4.dir

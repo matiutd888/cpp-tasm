@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/aryski/3SEM/JNP/JNP-1-task-4/computer.h
+cstdio
+-
+array
+-
+cstring
+-
+cassert
+-
+string
+-
+cstdlib
+-
+
+/Users/aryski/3SEM/JNP/JNP-1-task-4/computer_example.cc
+computer.h
+/Users/aryski/3SEM/JNP/JNP-1-task-4/computer.h
+array
+-
+
