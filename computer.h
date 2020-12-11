@@ -3,6 +3,8 @@
 
 //#include <cassert>
 #include <string>
+#include <stdexcept>
+#include <array>
 
 using id_type = uint_fast64_t;
 constexpr id_type id_code_base = 38;

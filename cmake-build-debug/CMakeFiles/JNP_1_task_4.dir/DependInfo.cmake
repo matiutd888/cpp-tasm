@@ -4,9 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/aryski/3SEM/JNP/JNP-1-task-4/computer_example.cc" "/Users/aryski/3SEM/JNP/JNP-1-task-4/cmake-build-debug/CMakeFiles/JNP_1_task_4.dir/computer_example.cc.o"
+  "C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/computer_example.cc" "C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/cmake-build-debug/CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj"
   )
-set(CMAKE_CXX_COMPILER_ID "AppleClang")
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH

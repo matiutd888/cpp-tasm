@@ -1,7 +1,9 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/JNP_1_task_4.dir/computer_example.cc.o"
-  "JNP_1_task_4"
+  "CMakeFiles/JNP_1_task_4.dir/computer_example.cc.obj"
+  "JNP_1_task_4.exe"
+  "JNP_1_task_4.exe.manifest"
   "JNP_1_task_4.pdb"
+  "libJNP_1_task_4.dll.a"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -6,23 +6,13 @@
 
 #IncludeRegexTransform: 
 
-/Users/aryski/3SEM/JNP/JNP-1-task-4/computer.h
-cstdio
--
-array
--
-cstring
--
-cassert
--
+C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/computer.h
 string
 -
-cstdlib
--
 
-/Users/aryski/3SEM/JNP/JNP-1-task-4/computer_example.cc
+C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/computer_example.cc
 computer.h
-/Users/aryski/3SEM/JNP/JNP-1-task-4/computer.h
+C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/computer.h
 array
 -
 
