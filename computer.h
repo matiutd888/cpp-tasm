@@ -250,7 +250,7 @@ private:
     template<typename T, typename... Instructions>
     struct CorrectnessChecker<T, Instructions...> {
         constexpr static bool check() {
-            if (std::is_base_of_v<Instr, T>()) {
+            if (std::is_base_of_v<Instr, T>) {
                 return CorrectnessChecker<Instructions...>::check();
             } else return false;
         }
