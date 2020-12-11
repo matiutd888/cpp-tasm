@@ -19,15 +19,7 @@ constexpr size_t id_size_max = 6;
 // (a-zA-Z) oraz cyfry (0-9); małe i wielkie litery nie są rozróżniane. Przykłady poprawnych identyfikatorów:
 // Id("A"), Id("01234"), Id("Cdefg").
 
-/*template <char c>
-static constexpr bool check_if_sign_valid() {
-    return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z');
-}*/
-
 static constexpr id_type get_id(const char &c) {
-    /*static_assert((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z'),
-                  "ID not valid: wrong sign!");*/
-    // TODO this assert doesnt work :(
     char cc = c;
     if (cc >= 'a' && cc <= 'z')
         cc = cc + 'A' - 'a';
@@ -36,7 +28,7 @@ static constexpr id_type get_id(const char &c) {
     else if (cc >= 'A' && cc <= 'Z')
         return cc - 'A' + '9' - '0' + 2;
     else {
-        //TODO NOT VALID SIGNS
+        throw std::logic_error("NOT VALID ID SIGN");
     }
 }
 
@@ -56,7 +48,7 @@ static constexpr id_type Id(const char *id_str) {
         }
         return res;
     } else {
-        //TODO NOT VALID ID LENGHT
+        throw std::logic_error("NOT VALID ID LENGHT");
     }
 }
 
@@ -208,7 +200,7 @@ private:
                 h.mem[h.ind] = Evaluator<Value>::rvalue(h);
                 h.ind++;
             } else {
-                // TODO
+                throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE");
             }
             DeclarationParser<Instructions...>::evaluate(h);
         }
@@ -287,6 +279,7 @@ private:
     template<typename ...OrginalInstructions>
     struct InstructionsParser<Program<OrginalInstructions...>> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
+            throw std::logic_error("COMPILATION ERROR");
         }
     };
 
@@ -435,12 +428,10 @@ private:
         }
     };
 
-
     template<typename ...OrginalInstructions, id_type label_to_find>
     struct LabelParser<Program<OrginalInstructions...>, label_to_find> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
-            //TODO LABEL NOT FOUND albo zostawić skomentowane
-            throw "DUPA";
+            throw std::logic_error("LABEL NOT FOUND");
         }
     };
 };
