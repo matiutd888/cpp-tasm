@@ -1,111 +1,76 @@
 #ifndef COMPUTER_H
 #define COMPUTER_H
 
-//#include <cassert>
 #include <string>
 #include <stdexcept>
 #include <array>
 
-using id_type = uint_fast64_t;
-constexpr id_type id_code_base = 38;
+using id_type = uint_fast64_t; // Typ zwracany przez Id(str), reprezentuje kod reprezentujący dane id.
+constexpr id_type id_code_base = 38; // Liczba różnych znaków w łańcuchach znaków reprezentujących id + 2.
 constexpr size_t id_size_min = 1;
 constexpr size_t id_size_max = 6;
 
-//Poprawna lewa wartość (l-wartość) w TMPAsm to Mem.
-//Poprawne prawe wartości (p-wartość) w TMPAsm to Mem, Num, Lea.
-
-//Podstawowe elementy języka TMPAsm:
-
-//Identyfikatory zmiennej lub etykiety Id Id(const char*) – identyfikator; identyfikator tworzony jest na
-//podstawie ciągu znaków o długości od 1 do 6 włącznie, zawierającego małe i wielkie litery alfabetu angielskiego
-// (a-zA-Z) oraz cyfry (0-9); małe i wielkie litery nie są rozróżniane. Przykłady poprawnych identyfikatorów:
-// Id("A"), Id("01234"), Id("Cdefg").
-
-static constexpr id_type get_id(const char &c) {
-    char cc = c;
-    if (cc >= 'a' && cc <= 'z')
-        cc = cc + 'A' - 'a';
-    if (cc >= '0' && cc <= '9')
-        return cc - '0' + 1;
-    else if (cc >= 'A' && cc <= 'Z')
-        return cc - 'A' + '9' - '0' + 2;
+/*
+ * Zwraca kod znaku.
+ * Znaki reprezentujące ID są cyframi lub literami.
+ * Na początku jeśli 'c' jest małą literą, zamieniane jest na dużą literę.
+ * Następnie zwracany jest numer znaku 'c' w ciągu '0', '1', ..., '9', 'A', 'B', ..., 'Z'
+ * (gdzie numer znaku '0' jest równy 1, itd).
+ * Jeżeli 'c' nie jest ani cyfrą ani literą rzucany jest wyjątek std::logic_error.
+ */
+static constexpr id_type get_char_id(char c) {
+    if (c >= 'a' && c <= 'z')
+        c = c + 'A' - 'a';
+    if (c >= '0' && c <= '9')
+        return c - '0' + 1;
+    else if (c >= 'A' && c <= 'Z')
+        return c - 'A' + '9' - '0' + 2;
     else {
-        throw std::logic_error("NOT VALID ID SIGN");
+        throw std::logic_error("NOT VALID ID SIGN!");
     }
 }
 
+/*
+ * Zwraca zakodowane różnowartościowo id reprezentowane przez łańcuch 'id_str'.
+ * Jeżeli długość 'id_str' nie jest z zakresu {1, ..., 6} rzuca std::logic_error.
+ */
 static constexpr id_type Id(const char *id_str) {
     std::basic_string_view<char> s(id_str);
     if (id_size_min <= s.size() && s.size() <= id_size_max) {
         id_type p = id_code_base;
         id_type res = 0;
-        bool czy = true;
         for (char i : s) {
-            if (i == '\0')
-                czy = false;
-            id_type c = 0;
-            if (czy)
-                c = get_id(i);
-            res = res * p + c;
+            if (i != '\0') {
+                id_type c = get_char_id(i);
+                res = res * p + c;
+            }
         }
         return res;
     } else {
-        throw std::logic_error("NOT VALID ID LENGHT");
+        throw std::logic_error("NOT VALID ID LENGHT!");
     }
 }
 
-//Literały numeryczne Num Literały całkowitoliczbowe. Przykłady poprawnych literałów: Num<13>, Num<0>, Num<-50>.
 template<auto T>
 struct Num;
 
-//Pamięć Mem Mem<Addr> – dostęp do komórki pamięci pod adresem Addr; Addr musi być poprawną p-wartością.
-// Odwołania poza dostępną pamięć są wykrywane i zgłaszane jako błąd. Zakres adresacji jest zgodny z wersją unsigned
-//typu słowa zdefiniowanego dla danego komputera. Przykłady poprawnych odwołań do pamięci: Mem<Num<0>>, Mem<Lea<Id("a")>>.
 template<typename T>
 struct Mem;
 
-//Pobranie efektywnego adresu zmiennej Lea, Lea<Id> – zwraca wartość efektywnego adresu zmiennej Id.
-//Przykłady poprawnych pobrań adresu zmiennej: Lea<Id("A")>, Lea<Id("a")>.
 template<id_type T>
 struct Lea;
 
-//Program w języku TMPAsm składa się z ciągu instrukcji. Podczas ładowania programu pamięć komputera jest inicjowana
-// zerami. Następnie wszystkie zmienne są kopiowane do pamięci komputera zgodnie z kolejnością deklaracji,
-//a później wykonywane są pozostałe instrukcje.
 template<typename ...T>
 struct Program;
 
-//TMPAsm wspiera następujące instrukcje:
+template <typename I>
+struct Instr;
 
-//Deklaracja zmiennej D D<Id, Value> – deklaruje zmienną o identyfikatorze Id oraz wartości numerycznej Value.
-//Przykład poprawnej deklaracji zmiennej: D<Id("A"), Num<5>>.
 template<id_type id, typename Value>
 struct D;
 
-//Operacja kopiowania Mov Mov<Dst, Src> – kopiuje wartość Src do Dst; Dst musi być poprawną l-wartością,
-// natomiast Src musi być poprawną p-wartością.
-// Przykłady poprawnych instrukcji: Mov<Mem<Num<0>>, Num<13>>, Mov<Mem<Lea<Id("abc")>>, Mem<Num<0>>>.
 template<typename Dst, typename Src>
 struct Mov;
-
-//Operacje arytmetyczne Add, Sub, Inc, Dec
-//        Add<Arg1, Arg2> – dodawanie
-//        Sub<Arg1, Arg2> – odejmowanie
-//        Wynik powyższych operacji jest umieszczany w Arg1.
-//Arg1 musi być poprawną l-wartością, natomiast Arg2 musi być poprawną
-//        p-wartością.
-//Inc<Arg> – specjalizacja dodawania, zwiększająca wartość Arg o 1
-//Dec<Arg> – specjalizacja odejmowania, zmniejszająca wartość Arg o 1
-//Arg musi być poprawną l-wartością.
-//Wszystkie operacje arytmetyczne ustawiają:
-//- flagę ZF (zero flag) procesora na 1, jeśli wynik jest 0,
-//a na 0 w przeciwnym przypadku.
-//- flagę SF (sign flag) procesora na 1, jeśli wynik jest ujemny,
-//        a na 0 w przeciwnym przypadku.
-//Operacje arytmetyczne są wykonywane zgodnie z typem słowa zdefiniowanym
-//        dla danego komputera.
-//Przykłady poprawnych operacji:
-//Add<Mem<Num<0>>, Num<1>>, Inc<Mem<Lea<Id("a")>>>.
 
 template<typename Arg1, typename Arg2>
 struct Add;
@@ -134,28 +99,32 @@ struct Cmp;
 template<id_type id>
 struct Label;
 
-template<id_type label_id>
+template<id_type label>
 struct Jmp;
 
-template<id_type label_id>
+template<id_type label>
 struct Jz;
 
-template<id_type label_id>
+template<id_type label>
 struct Js;
 
-//Szablon klasy Computer powinien mieć następujące parametry: wielkość pamięci – dodatnia wartość określająca liczbę
-//komórek pamięci w słowach; typ słowa – typ całkowitoliczbowy reprezentujący podstawową jednostkę pamięci.
 template<size_t size, typename word_t>
 struct Computer {
 private:
-    using memory_t = std::array<word_t, size>;
-    using ids_t = std::array<id_type, size>;
+    using memory_t = std::array<word_t, size>; // Typ reprezentujacy tablicę przechowującą efektywne wartości
+                                               // kolejnych adresów pamięci komputera.
+
+    using ids_t = std::array<id_type, size>; // Typ reprezentujący tablicę która dla komórki pamięci o adresie 'i'
+                                             // przechowuje identyfikator zmiennej w niej
+                                             // przechowywanej.
+
+    // Struktura reprezentująca aktualny stan komputera.
     struct hardware {
         memory_t mem;
         ids_t ids;
         bool ZF;
         bool SF;
-        size_t ind;
+        size_t ind; // Reprezentuje adres ostatniej zadeklarowanej zmiennej.
     };
 
 public:
@@ -168,6 +137,8 @@ public:
     };
 
 private:
+    // Dla danego wyniku operacji arytmetycznej ustawia odpowiednie flagi w strukturze
+    // reprezentującej stan komputera, zgodnie z treścią polecenia.
     static constexpr void set_flags_arthmetic(hardware &h, word_t result) {
         if (result == 0)
             h.ZF = 1;
@@ -178,22 +149,26 @@ private:
         else h.SF = 0;
     }
 
+    // Dla danego wyniku operacji logicznej ustawia odpowiednie flagi w strukturze
+    // reprezentującej stan komputera, zgodnie z treścią polecenia.
     static constexpr void set_flags_logical(hardware &h, word_t result) {
         if (result == 0)
             h.ZF = 1;
         else h.ZF = 0;
     }
 
-    //DECLARATION PARSER
+    // Struktura udostępniająca metodę deklarującą wszystkie zmienne zgodnie z kolejnością deklaracji.
     template<typename... Instr>
     struct DeclarationParser;
 
     template<>
     struct DeclarationParser<> {
+        // Jeżeli nie mamy już deklaracji do zadeklarowania, nic nie robimy.
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
         }
     };
 
+    // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
     template<id_type id, typename Value, typename... Instructions>
     struct DeclarationParser<D<id, Value>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
@@ -202,7 +177,7 @@ private:
                 h.mem[h.ind] = Evaluator<Value>::rvalue(h);
                 h.ind++;
             } else {
-                throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE");
+                throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE!");
             }
             DeclarationParser<Instructions...>::evaluate(h);
         }
@@ -272,17 +247,14 @@ private:
         }
     };
 
-    //INSTRUCTIONS PARSER
-    // TODO błędna instrukcja nie jest tu wykrywana (ta struktura nie powinna mieć implementacji)
     template<typename... Instructions>
     struct InstructionsParser;
 
-
     // Compilation error
-    template<typename ...OrginalInstructions, typename A, typename ...Instructions>
-    struct InstructionsParser<Program<OrginalInstructions...>, A, Instructions...> {
+    template<typename ...OrginalInstructions, typename Wrong, typename ...Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Wrong, Instructions...> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
-            throw std::logic_error("COMPILATION ERROR!");
+            throw std::logic_error("WRONG INSTRUCTIONS!");
         }
     };
 
@@ -419,7 +391,6 @@ private:
         }
     };
 
-    //LABEL PARSER
     template<typename Program, id_type label_to_find, typename... Instr>
     struct LabelParser;
 
@@ -432,8 +403,8 @@ private:
         }
     };
 
-    template<typename ...OrginalInstructions, id_type label_to_find, typename A, typename... Instr>
-    struct LabelParser<Program<OrginalInstructions...>, label_to_find, A, Instr...> {
+    template<typename ...OrginalInstructions, id_type label_to_find, typename Skip, typename... Instr>
+    struct LabelParser<Program<OrginalInstructions...>, label_to_find, Skip, Instr...> {
         constexpr static void evaluate(hardware &h) {
             LabelParser<Program<OrginalInstructions...>, label_to_find, Instr...>::evaluate(h);
         }
