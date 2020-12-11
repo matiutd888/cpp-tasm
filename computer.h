@@ -31,7 +31,8 @@ namespace {
         }
     }
 
-    struct Instr {};
+    struct Instr {
+    };
 }
 
 /*
@@ -77,51 +78,51 @@ struct Mov : Instr {
 
 template<typename Arg1, typename Arg2>
 struct Add : Instr {
-};;
+};
 
 template<typename Arg1, typename Arg2>
 struct Sub : Instr {
-};;
+};
 
 template<typename Arg1>
 struct Inc : Instr {
-};;
+};
 
 template<typename Arg1>
 struct Dec : Instr {
-};;
+};
 
 template<typename Arg1, typename Arg2>
 struct And : Instr {
-};;
+};
 
 template<typename Arg1, typename Arg2>
 struct Or : Instr {
-};;
+};
 
 template<typename Arg>
 struct Not : Instr {
-};;
+};
 
 template<typename Arg1, typename Arg2>
 struct Cmp : Instr {
-};;
+};
 
 template<id_type id>
 struct Label : Instr {
-};;
+};
 
 template<id_type label>
 struct Jmp : Instr {
-};;
+};
 
 template<id_type label>
 struct Jz : Instr {
-};;
+};
 
 template<id_type label>
 struct Js : Instr {
-};;
+};
 
 template<size_t size, typename word_t>
 struct Computer {
