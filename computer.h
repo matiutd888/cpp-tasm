@@ -9,7 +9,7 @@
 #include <cstdlib>
 
 using code_t = uint_fast64_t;
-constexpr code_t id_code_base = 64;
+constexpr code_t id_code_base = 38;
 constexpr size_t id_size_min = 1;
 constexpr size_t id_size_max = 6;
 
@@ -129,16 +129,6 @@ struct Inc;
 template<typename Arg1>
 struct Dec;
 
-//Operacje logiczne And, Or, Not
-//And<Arg1, Arg2> – bitowa operacja and
-//Or<Arg1, Arg2> – bitowa operacja or
-//Wynik powyższych operacji jest umieszczany w Arg1. Arg1 musi być poprawną l-wartością, natomiast Arg2 musi być
-//poprawną p-wartością.
-//Not<Arg> – bitowa negacja
-//Arg musi być poprawną l-wartością. Wszystkie operacje logiczne ustawiają: - flagę ZF (zero flag) procesora na 1,
-//jeśli wynik jest 0, a na 0 w przeciwnym przypadku.
-//Przykłady poprawnych operacji: And<Mem<Num<0>>, Num<1>>, Not<Mem<Lea<Id("a")>>>.
-
 template<typename Arg1, typename Arg2>
 struct And;
 
@@ -148,15 +138,8 @@ struct Or;
 template<typename Arg>
 struct Not;
 
-//Operację porównania Cmp
-//Cmp<Arg1, Arg2> – działa jak operacja odejmowania, ale nie zapisuje wyniku, a tylko ustawia flagi.
-//Arg1 oraz Arg2 muszą być poprawnymi p-wartościami. Przykład poprawnej operacji: Cmp<Mem<Num<0>>, Num<1>>.
-
 template<typename Arg1, typename Arg2>
 struct Cmp;
-
-//Oznaczenie etykiety Label
-//Label<Id> – ustawienie etykiety o identyfikatorze Id. Przykład poprawnej etykiety: Label<Id("label")>.
 
 template<code_t id_code>
 struct Label;
@@ -229,7 +212,7 @@ private:
                 h.mem[h.ind] = Evaluator<Value>::rvalue(h);
                 h.ind++;
             } else {
-                //TODO NO MORE MEMORY
+                // TODO
             }
             DeclarationParser<Instructions...>::evaluate(h);
         }
@@ -310,7 +293,6 @@ private:
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
         }
     };
-
 
     // w celach ignorowania labela pojawiajacego się przed jumpem
     template<typename ...OrginalInstructions, code_t ignore, typename... Instructions>
