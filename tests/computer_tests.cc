@@ -4,7 +4,7 @@
 
 // Operator == dla std::array jest constexpr dopiero od C++20.
 template<class T, std::size_t N>
-constexpr bool compare(std::array<T, N> const& arg1, std::array<T, N> const& arg2) {
+constexpr bool compare(std::array<T, N> const &arg1, std::array<T, N> const &arg2) {
     for (size_t i = 0; i < N; ++i)
         if (arg1[i] != arg2[i]) return false;
     return true;
@@ -24,7 +24,6 @@ using test_machine = Computer<4, int>;
 
 using test_empty = Program<>;
 constexpr std::array<int, 4> test_empty_res = {0, 0, 0, 0};
-static_assert(compare(test_machine::boot<test_empty>(), test_empty_res));
 
 using test_jumps = Program<
         Dec<Mem<Num<0>>>,
@@ -35,7 +34,6 @@ using test_jumps = Program<
         Label<Id("xd")>
 >;
 constexpr std::array<int, 4> test_jumps_res = {0, 0, 0, 0};
-static_assert(compare(test_machine::boot<test_jumps>(), test_jumps_res));
 
 using test_declarations = Program<
         D<Id("a"), Num<-3>>,
@@ -44,8 +42,6 @@ using test_declarations = Program<
         D<Id("a"), Num<-1>>
 >;
 constexpr std::array<int, 4> test_declarations_res = {-3, -2, -1, -1};
-static_assert(compare(test_machine::boot<test_declarations>(), test_declarations_res));
-
 
 // tests that should compile AND ofc not result in infinite loop:
 using test_id1 = Program<
@@ -58,7 +54,7 @@ using test_id1 = Program<
         Label<Id("loop")>,
         Jmp<Id("loop")>,
         Label<Id("end")>
-        >;
+>;
 
 using test_underflow = Program<
         D<Id("mem0"), Num<INT32_MIN>>,
@@ -78,10 +74,10 @@ using test_finite_loop = Program<
 
 //using test_bad_id1 = Program<
 //        Label<Id("%")>>;
-
+//
 //using test_bad_id2 = Program<
 //        Label<Id("3324234")>>;
-
+//
 //using test_bad_syntax1 = Program<
 //        Inc<Lea<Lea<Id("a")>>>>;
 
@@ -96,7 +92,7 @@ using test_infinite_loop = Program<
         Jmp<Id("LOOP")>,
         D<Id("mem0"), Num<-1000000>>
 >;
-//constexpr auto test_infinite_loop_res = test_machine::boot<test_infinite_loop>();
+// constexpr auto test_infinite_loop_res = test_machine::boot<test_infinite_loop>();
 
 using test_bad_program = Num<4>;
 //constexpr auto bad_program = test_machine::boot<test_bad_program>();
@@ -128,26 +124,32 @@ using test_syntax5 = Program<
 // I can't make this test fail, yet I believe it should.
 using test_syntax6 = Program<
         Label<4ULL>>;
-//constexpr auto test_syntax6_res = test_machine::boot<test_syntax6>();
+constexpr auto test_syntax6_res = test_machine::boot<test_syntax6>();
 
 using test_D_syntax1 = Program<
         D<Id("a"), Mem<Num<1>>>>;
-//constexpr auto test_D_syntax1_res = test_machine::boot<test_D_syntax1>();
+constexpr auto test_D_syntax1_res = test_machine::boot<test_D_syntax1>();
 
 using test_D_syntax2 = Program<
         D<Id("1"), Num<1>>,
         D<Id("a"), Lea<Id("1")>>>;
-//constexpr auto test_D_syntax2_res = test_machine::boot<test_D_syntax1>();
+constexpr auto test_D_syntax2_res = test_machine::boot<test_D_syntax1>();
 
 
 
-//int main() {
-//
-//
-//test_machine::boot<test_finite_loop>();
-//test_machine::boot<test_id1>();
-//
-//auto arr = test_machine::boot<test_id1>();
-//for (auto itr : arr)
-//    std::cout << (int) itr << std::endl;
-//}
+int main() {
+
+    // Mają działać
+    static_assert(compare(test_machine::boot<test_jumps>(), test_jumps_res));
+    static_assert(compare(test_machine::boot<test_declarations>(), test_declarations_res));
+    static_assert(compare(test_machine::boot<test_empty>(), test_empty_res));
+
+
+    //
+    test_machine::boot<test_finite_loop>();
+    test_machine::boot<test_id1>();
+
+    auto arr = test_machine::boot<test_id1>();
+    for (auto itr : arr)
+        std::cout << (int) itr << std::endl;
+}

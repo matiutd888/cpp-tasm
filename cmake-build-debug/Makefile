@@ -47,10 +47,10 @@ RM = "C:\Program Files\JetBrains\CLion 2019.3.3\bin\cmake\win\bin\cmake.exe" -E 
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy"
+CMAKE_SOURCE_DIR = "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4"
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\cmake-build-debug"
+CMAKE_BINARY_DIR = "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4\cmake-build-debug"
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -79,9 +79,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\cmake-build-debug\CMakeFiles" "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\cmake-build-debug\CMakeFiles\progress.marks"
+	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4\cmake-build-debug\CMakeFiles" "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4\cmake-build-debug\CMakeFiles\progress.marks"
 	$(MAKE) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4-nowy\cmake-build-debug\CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\Mateusz\Desktop\skrypty\iii sem\JNP\Zadania\Zadanie-4\cmake-build-debug\CMakeFiles" 0
 .PHONY : all
 
 # The main clean target
@@ -110,17 +110,43 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named JNP_1_task_4
+# Target rules for targets named TEST_PRZYTULA
 
 # Build rule for target.
-JNP_1_task_4: cmake_check_build_system
-	$(MAKE) -f CMakeFiles\Makefile2 JNP_1_task_4
-.PHONY : JNP_1_task_4
+TEST_PRZYTULA: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 TEST_PRZYTULA
+.PHONY : TEST_PRZYTULA
 
 # fast build rule for target.
-JNP_1_task_4/fast:
-	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/build
-.PHONY : JNP_1_task_4/fast
+TEST_PRZYTULA/fast:
+	$(MAKE) -f CMakeFiles\TEST_PRZYTULA.dir\build.make CMakeFiles/TEST_PRZYTULA.dir/build
+.PHONY : TEST_PRZYTULA/fast
+
+#=============================================================================
+# Target rules for targets named TEST_PECZAR
+
+# Build rule for target.
+TEST_PECZAR: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 TEST_PECZAR
+.PHONY : TEST_PECZAR
+
+# fast build rule for target.
+TEST_PECZAR/fast:
+	$(MAKE) -f CMakeFiles\TEST_PECZAR.dir\build.make CMakeFiles/TEST_PECZAR.dir/build
+.PHONY : TEST_PECZAR/fast
+
+#=============================================================================
+# Target rules for targets named TEST_FB
+
+# Build rule for target.
+TEST_FB: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 TEST_FB
+.PHONY : TEST_FB
+
+# fast build rule for target.
+TEST_FB/fast:
+	$(MAKE) -f CMakeFiles\TEST_FB.dir\build.make CMakeFiles/TEST_FB.dir/build
+.PHONY : TEST_FB/fast
 
 #=============================================================================
 # Target rules for targets named TEST1
@@ -134,6 +160,33 @@ TEST1: cmake_check_build_system
 TEST1/fast:
 	$(MAKE) -f CMakeFiles\TEST1.dir\build.make CMakeFiles/TEST1.dir/build
 .PHONY : TEST1/fast
+
+computer_example.obj: computer_example.cc.obj
+
+.PHONY : computer_example.obj
+
+# target to build an object file
+computer_example.cc.obj:
+	$(MAKE) -f CMakeFiles\TEST_PECZAR.dir\build.make CMakeFiles/TEST_PECZAR.dir/computer_example.cc.obj
+.PHONY : computer_example.cc.obj
+
+computer_example.i: computer_example.cc.i
+
+.PHONY : computer_example.i
+
+# target to preprocess a source file
+computer_example.cc.i:
+	$(MAKE) -f CMakeFiles\TEST_PECZAR.dir\build.make CMakeFiles/TEST_PECZAR.dir/computer_example.cc.i
+.PHONY : computer_example.cc.i
+
+computer_example.s: computer_example.cc.s
+
+.PHONY : computer_example.s
+
+# target to generate assembly for a file
+computer_example.cc.s:
+	$(MAKE) -f CMakeFiles\TEST_PECZAR.dir\build.make CMakeFiles/TEST_PECZAR.dir/computer_example.cc.s
+.PHONY : computer_example.cc.s
 
 test1.obj: test1.cc.obj
 
@@ -168,7 +221,7 @@ tests/computer_tests.obj: tests/computer_tests.cc.obj
 
 # target to build an object file
 tests/computer_tests.cc.obj:
-	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.obj
+	$(MAKE) -f CMakeFiles\TEST_PRZYTULA.dir\build.make CMakeFiles/TEST_PRZYTULA.dir/tests/computer_tests.cc.obj
 .PHONY : tests/computer_tests.cc.obj
 
 tests/computer_tests.i: tests/computer_tests.cc.i
@@ -177,7 +230,7 @@ tests/computer_tests.i: tests/computer_tests.cc.i
 
 # target to preprocess a source file
 tests/computer_tests.cc.i:
-	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.i
+	$(MAKE) -f CMakeFiles\TEST_PRZYTULA.dir\build.make CMakeFiles/TEST_PRZYTULA.dir/tests/computer_tests.cc.i
 .PHONY : tests/computer_tests.cc.i
 
 tests/computer_tests.s: tests/computer_tests.cc.s
@@ -186,8 +239,35 @@ tests/computer_tests.s: tests/computer_tests.cc.s
 
 # target to generate assembly for a file
 tests/computer_tests.cc.s:
-	$(MAKE) -f CMakeFiles\JNP_1_task_4.dir\build.make CMakeFiles/JNP_1_task_4.dir/tests/computer_tests.cc.s
+	$(MAKE) -f CMakeFiles\TEST_PRZYTULA.dir\build.make CMakeFiles/TEST_PRZYTULA.dir/tests/computer_tests.cc.s
 .PHONY : tests/computer_tests.cc.s
+
+tests/computer_tests_fb.obj: tests/computer_tests_fb.cc.obj
+
+.PHONY : tests/computer_tests_fb.obj
+
+# target to build an object file
+tests/computer_tests_fb.cc.obj:
+	$(MAKE) -f CMakeFiles\TEST_FB.dir\build.make CMakeFiles/TEST_FB.dir/tests/computer_tests_fb.cc.obj
+.PHONY : tests/computer_tests_fb.cc.obj
+
+tests/computer_tests_fb.i: tests/computer_tests_fb.cc.i
+
+.PHONY : tests/computer_tests_fb.i
+
+# target to preprocess a source file
+tests/computer_tests_fb.cc.i:
+	$(MAKE) -f CMakeFiles\TEST_FB.dir\build.make CMakeFiles/TEST_FB.dir/tests/computer_tests_fb.cc.i
+.PHONY : tests/computer_tests_fb.cc.i
+
+tests/computer_tests_fb.s: tests/computer_tests_fb.cc.s
+
+.PHONY : tests/computer_tests_fb.s
+
+# target to generate assembly for a file
+tests/computer_tests_fb.cc.s:
+	$(MAKE) -f CMakeFiles\TEST_FB.dir\build.make CMakeFiles/TEST_FB.dir/tests/computer_tests_fb.cc.s
+.PHONY : tests/computer_tests_fb.cc.s
 
 # Help Target
 help:
@@ -195,16 +275,24 @@ help:
 	@echo ... all (the default if no target is provided)
 	@echo ... clean
 	@echo ... depend
-	@echo ... JNP_1_task_4
+	@echo ... TEST_PRZYTULA
+	@echo ... TEST_PECZAR
+	@echo ... TEST_FB
 	@echo ... TEST1
 	@echo ... edit_cache
 	@echo ... rebuild_cache
+	@echo ... computer_example.obj
+	@echo ... computer_example.i
+	@echo ... computer_example.s
 	@echo ... test1.obj
 	@echo ... test1.i
 	@echo ... test1.s
 	@echo ... tests/computer_tests.obj
 	@echo ... tests/computer_tests.i
 	@echo ... tests/computer_tests.s
+	@echo ... tests/computer_tests_fb.obj
+	@echo ... tests/computer_tests_fb.i
+	@echo ... tests/computer_tests_fb.s
 .PHONY : help
 
 
