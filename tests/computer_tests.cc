@@ -124,21 +124,23 @@ using test_syntax5 = Program<
 // I can't make this test fail, yet I believe it should.
 using test_syntax6 = Program<
         Label<4ULL>>;
-constexpr auto test_syntax6_res = test_machine::boot<test_syntax6>();
+
 
 using test_D_syntax1 = Program<
         D<Id("a"), Mem<Num<1>>>>;
-constexpr auto test_D_syntax1_res = test_machine::boot<test_D_syntax1>();
 
 using test_D_syntax2 = Program<
         D<Id("1"), Num<1>>,
         D<Id("a"), Lea<Id("1")>>>;
-constexpr auto test_D_syntax2_res = test_machine::boot<test_D_syntax1>();
+
 
 
 
 int main() {
 
+    constexpr auto test_D_syntax1_res = test_machine::boot<test_D_syntax1>();
+    constexpr auto test_D_syntax2_res = test_machine::boot<test_D_syntax1>();
+    constexpr auto test_syntax6_res = test_machine::boot<test_syntax6>();
     // Mają działać
     static_assert(compare(test_machine::boot<test_jumps>(), test_jumps_res));
     static_assert(compare(test_machine::boot<test_declarations>(), test_declarations_res));
