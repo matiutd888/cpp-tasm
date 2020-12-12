@@ -204,8 +204,8 @@ private:
             return val;
         }
     };
-	
-	// Sprawdza, czy w tablicy 'ids' istnieje wartośći 'id'.
+
+    // Sprawdza, czy w tablicy 'ids' istnieje wartośći 'id'.
     static constexpr bool array_has(const ids_t &ids, id_type id) {
         for (const auto id_it : ids) {
             if (id_it == id) return true;
@@ -274,12 +274,15 @@ private:
     };
 
     // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
-    template<id_type id, auto val, typename... Instructions>
-    struct DeclarationParser<D<id, Num<val>>, Instructions...> {
+    template<id_type id, typename Value, typename... Instructions>
+    struct DeclarationParser<D<id, Value>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
+            if (!std::is_same_v<Value, Num>) {
+                throw std::logic_error("VALUE NOT NUM!");
+            }
             if (h.ind < h.mem.size()) {
                 h.ids[h.ind] = id;
-                h.mem[h.ind] = Evaluator<Num<val>>::rvalue(h);
+                h.mem[h.ind] = Evaluator<Value>::rvalue(h);
                 h.ind++;
             } else {
                 throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE!");
@@ -295,21 +298,21 @@ private:
         }
     };
 
-	// Struktura zawiera metodę 'evaluate', która wykonuje kolejne instrukcje programu.
-	// Zmiany przechowywane są w argumencie do metody typu 'hardware' przekazywanym
-	// przez referencję.
+    // Struktura zawiera metodę 'evaluate', która wykonuje kolejne instrukcje programu.
+    // Zmiany przechowywane są w argumencie do metody typu 'hardware' przekazywanym
+    // przez referencję.
     template<typename... Instructions>
     struct InstructionsParser;
 
     template<typename ...OrginalInstructions>
     struct InstructionsParser<Program<OrginalInstructions...>> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
-		
+
         }
     };
 
-	// Jeżeli instrukcja nie została zmatchowana, skipujemy ją (nie rzucamy wyjątku, ponieważ poprawność
-	// instrukcji sprawdzana jest w innym miejscu.
+    // Jeżeli instrukcja nie została zmatchowana, skipujemy ją (nie rzucamy wyjątku, ponieważ poprawność
+    // instrukcji sprawdzana jest w innym miejscu.
     template<typename ...OrginalInstructions, typename Skip, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Skip, Instructions...> {
         constexpr static void evaluate(hardware &h) {
@@ -427,15 +430,15 @@ private:
         }
     };
 
-	// Zawiera metodę 'evaluate' znajdującą pierwsze wystąpienie Label<label_to_find>.
-	// Po znalezieniu wywoływane jest analizowanie pozostałych instrukcji (InstructionsParser::evaluate).
-	// Jeżeli label nie zostanie odnaleziony rzucany jest wyjątek.
+    // Zawiera metodę 'evaluate' znajdującą pierwsze wystąpienie Label<label_to_find>.
+    // Po znalezieniu wywoływane jest analizowanie pozostałych instrukcji (InstructionsParser::evaluate).
+    // Jeżeli label nie zostanie odnaleziony rzucany jest wyjątek.
     template<typename Program, id_type label_to_find, typename... Instructions>
     struct LabelParser;
 
-	// Jeżeli trafiliśmy na jakiś Label, sprawdzamy czy to ten, którego szukamy.
-	// Jeżeli tak, to kończymy szukanie i wywołujemy 'evaluate' z 'InstructionsParser' na pozostałych instrukcjach.
-	// Jeżeli nie, kontynuujemy szukanie.
+    // Jeżeli trafiliśmy na jakiś Label, sprawdzamy czy to ten, którego szukamy.
+    // Jeżeli tak, to kończymy szukanie i wywołujemy 'evaluate' z 'InstructionsParser' na pozostałych instrukcjach.
+    // Jeżeli nie, kontynuujemy szukanie.
     template<typename ...OrginalInstructions, id_type label_to_find, id_type id, typename... Instructions>
     struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
