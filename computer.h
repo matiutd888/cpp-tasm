@@ -136,7 +136,7 @@ private:
         ids_t ids;
         bool ZF;
         bool SF;
-        size_t ind; // Reprezentuje adres ostatniej zadeklarowanej zmiennej.
+        size_t ind; // Reprezentuje liczbę zadeklarowanych zmmiennych.
     };
 
 public:
@@ -176,19 +176,25 @@ private:
 
     template<typename... Instructions>
     struct ComputerProgram<Program<Instructions...>> {
+
+        // Wykonuje instrukcje zawarte w ...Instrukctions, omijając deklaracje.
         constexpr static void run(hardware &h) {
             InstructionsParser<Program<Instructions...>, Instructions...>::evaluate(h);
         }
 
+        // Deklaruje zawarte w Programie zmienne.
         constexpr static void declare_variables(hardware &h) {
             DeclarationParser<Instructions...>::evaluate(h);
         }
 
+        // Sprawdza, czy wszystkie 'instrukcje' w Programie są rzeczywiście instrukcjami.
+        // Zwraca wartość 'true' jeśli tak.
         constexpr static bool check_corectness() {
             return CorrectnessChecker<Instructions...>::check();
         }
     };
 
+    // Udostępnia metody ewaluujące struktury będące l-wartościami lub p-wartościami.
     template<typename T>
     struct Evaluator;
 
@@ -209,6 +215,8 @@ private:
 
     template<id_type id>
     struct Evaluator<Lea<id>> {
+        // Zwraca adres w pamięci zmiennej o identyfikatorze 'id',
+        // jeśli nie zostanie ona znaleziona rzucany jest wyjątek.
         static constexpr auto rvalue(hardware &h) {
             size_t ret = h.ind;
             for (size_t i = 0; i < h.ind; i++) {
@@ -232,7 +240,8 @@ private:
         }
     };
 
-    // Struktura udostępniająca metodę sprawdzającą, czy instrukcje w programie są rzeczywiście instrukcjami.
+    // Struktura udostępniająca metodę sprawdzającą,
+    // czy instrukcje w programie są rzeczywiście instrukcjami.
     template<typename... Instr>
     struct CorrectnessChecker;
 

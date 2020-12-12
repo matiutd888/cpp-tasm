@@ -1,4 +1,0 @@
-C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/cmake-build-debug/CMakeFiles/JNP_1_task_4.dir
-C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/cmake-build-debug/CMakeFiles/TEST1.dir
-C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Mateusz/Desktop/skrypty/iii sem/JNP/Zadania/Zadanie-4-nowy/cmake-build-debug/CMakeFiles/rebuild_cache.dir
