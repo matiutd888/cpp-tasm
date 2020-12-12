@@ -299,7 +299,7 @@ private:
     // że Value nie jest Num, rzucamy więc wyjątek.
     template<id_type id, typename Value, typename... Instructions>
     struct DeclarationParser<D<id, Value>, Instructions...> {
-        constexpr static void evaluate(hardware &h) {
+        constexpr static void evaluate([[maybe_unused]] hardware &h) {
             throw std::logic_error("VALUE IS NOT NUM!");
         }
     };
