@@ -29,7 +29,7 @@ using tmpasm_operations = Program<
         D<Id("b"), Num<3>>,
         D<Id("c"), Num<2>>,
         D<Id("d"), Num<1>>,
-        Add<Mem<Lea<Id("a")>>, Num<2.4>>,
+        Add<Mem<Lea<Id("a")>>, Num<2>>,
         Sub<Mem<Lea<Id("b")>>, Mem<Lea<Id("d")>>>,
         Mov<Mem<Lea<Id("c")>>, Num<0>>,
         Mov<Mem<Lea<Id("d")>>, Num<0>>>;
