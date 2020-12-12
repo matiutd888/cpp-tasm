@@ -274,15 +274,12 @@ private:
     };
 
     // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
-    template<id_type id, typename Value, typename... Instructions>
-    struct DeclarationParser<D<id, Value>, Instructions...> {
+    template<id_type id, auto val, typename... Instructions>
+    struct DeclarationParser<D<id, Num<val>>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            if (!std::is_same_v<Value, Num>) {
-                throw std::logic_error("VALUE NOT NUM!");
-            }
             if (h.ind < h.mem.size()) {
                 h.ids[h.ind] = id;
-                h.mem[h.ind] = Evaluator<Value>::rvalue(h);
+                h.mem[h.ind] = Evaluator<Num<val>>::rvalue(h);
                 h.ind++;
             } else {
                 throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE!");
@@ -295,6 +292,15 @@ private:
     struct DeclarationParser<Skip, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             DeclarationParser<Instructions...>::evaluate(h);
+        }
+    };
+
+    // Jeżeli deklaracja nie została zmatchowana do D<id, Num<val>> to znaczy,
+    // że Value nie jest Num, rzucamy więc wyjątek.
+    template<id_type id, typename Value, typename... Instructions>
+    struct DeclarationParser<D<id, Value>, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
+            throw std::logic_error("VALUE IS NOT NUM!");
         }
     };
 
