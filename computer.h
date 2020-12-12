@@ -274,12 +274,12 @@ private:
     };
 
     // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
-    template<id_type id, typename Value, typename... Instructions>
-    struct DeclarationParser<D<id, Value>, Instructions...> {
+    template<id_type id, auto val, typename... Instructions>
+    struct DeclarationParser<D<id, Num<val>>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.ind < h.mem.size()) {
                 h.ids[h.ind] = id;
-                h.mem[h.ind] = Evaluator<Value>::rvalue(h);
+                h.mem[h.ind] = Evaluator<Num<val>>::rvalue(h);
                 h.ind++;
             } else {
                 throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE!");
