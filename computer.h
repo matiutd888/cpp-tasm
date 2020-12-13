@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <array>
 
-namespace {
+namespace priv_ns {
     using id_type = uint_fast64_t; // Typ zwracany przez Id(str), reprezentuje kod reprezentujący dane id.
     constexpr id_type id_code_base = 38; // Liczba różnych znaków w łańcuchach znaków reprezentujących id + 2.
     constexpr size_t id_size_min = 1;
@@ -35,14 +35,14 @@ namespace {
 
 // Zwraca zakodowane różnowartościowo id reprezentowane przez łańcuch 'id_str'.
 // Jeżeli długość 'id_str' nie jest z zakresu {1, ..., 6} rzuca std::logic_error.
-constexpr id_type Id(const char *id_str) {
+constexpr priv_ns::id_type Id(const char *id_str) {
     std::basic_string_view<char> s(id_str);
-    if (id_size_min <= s.size() && s.size() <= id_size_max) {
-        id_type p = id_code_base;
-        id_type res = 0;
+    if (priv_ns::id_size_min <= s.size() && s.size() <= priv_ns::id_size_max) {
+        priv_ns::id_type p = priv_ns::id_code_base;
+        priv_ns::id_type res = 0;
         for (char i : s) {
             if (i != '\0') {
-                id_type c = get_char_id(i);
+                priv_ns::id_type c = priv_ns::get_char_id(i);
                 res = res * p + c;
             }
         }
@@ -58,66 +58,66 @@ struct Num;
 template<typename T>
 struct Mem;
 
-template<id_type T>
+template<priv_ns::id_type T>
 struct Lea;
 
 template<typename ...T>
 struct Program;
 
-template<id_type id, typename Value>
-struct D : Instr {
+template<priv_ns::id_type id, typename Value>
+struct D : priv_ns::Instr {
 };
 
 template<typename Dst, typename Src>
-struct Mov : Instr {
+struct Mov : priv_ns::Instr {
 };
 
 template<typename Arg1, typename Arg2>
-struct Add : Instr {
+struct Add : priv_ns::Instr {
 };
 
 template<typename Arg1, typename Arg2>
-struct Sub : Instr {
+struct Sub : priv_ns::Instr {
 };
 
 template<typename Arg1>
-struct Inc : Instr {
+struct Inc : priv_ns::Instr {
 };
 
 template<typename Arg1>
-struct Dec : Instr {
+struct Dec : priv_ns::Instr {
 };
 
 template<typename Arg1, typename Arg2>
-struct And : Instr {
+struct And : priv_ns::Instr {
 };
 
 template<typename Arg1, typename Arg2>
-struct Or : Instr {
+struct Or : priv_ns::Instr {
 };
 
 template<typename Arg>
-struct Not : Instr {
+struct Not : priv_ns::Instr {
 };
 
 template<typename Arg1, typename Arg2>
-struct Cmp : Instr {
+struct Cmp : priv_ns::Instr {
 };
 
-template<id_type id>
-struct Label : Instr {
+template<priv_ns::id_type id>
+struct Label : priv_ns::Instr {
 };
 
-template<id_type label>
-struct Jmp : Instr {
+template<priv_ns::id_type label>
+struct Jmp : priv_ns::Instr {
 };
 
-template<id_type label>
-struct Jz : Instr {
+template<priv_ns::id_type label>
+struct Jz : priv_ns::Instr {
 };
 
-template<id_type label>
-struct Js : Instr {
+template<priv_ns::id_type label>
+struct Js : priv_ns::Instr {
 };
 
 template<size_t size, typename word_t>
@@ -126,7 +126,7 @@ private:
     using memory_t = std::array<word_t, size>; // Typ reprezentujacy tablicę przechowującą efektywne wartości
     // kolejnych adresów pamięci komputera.
 
-    using ids_t = std::array<id_type, size>; // Typ reprezentujący tablicę która dla komórki pamięci o adresie 'i'
+    using ids_t = std::array<priv_ns::id_type, size>; // Typ reprezentujący tablicę która dla komórki pamięci o adresie 'i'
     // przechowuje identyfikator zmiennej w niej
     // przechowywanej.
 
@@ -176,7 +176,6 @@ private:
 
     template<typename... Instructions>
     struct ComputerProgram<Program<Instructions...>> {
-
         // Wykonuje instrukcje zawarte w ...Instrukctions, omijając deklaracje.
         constexpr static void run(hardware &h) {
             InstructionsParser<Program<Instructions...>, Instructions...>::evaluate(h);
@@ -205,15 +204,7 @@ private:
         }
     };
 
-    // Sprawdza, czy w tablicy 'ids' istnieje wartośći 'id'.
-    static constexpr bool array_has(const ids_t &ids, id_type id) {
-        for (const auto id_it : ids) {
-            if (id_it == id) return true;
-        }
-        return false;
-    }
-
-    template<id_type id>
+    template<priv_ns::id_type id>
     struct Evaluator<Lea<id>> {
         // Zwraca adres w pamięci zmiennej o identyfikatorze 'id',
         // jeśli nie zostanie ona znaleziona rzucany jest wyjątek.
@@ -256,9 +247,9 @@ private:
     template<typename T, typename... Instructions>
     struct CorrectnessChecker<T, Instructions...> {
         constexpr static bool check() {
-            if (std::is_base_of_v<Instr, T>) {
+            if (std::is_base_of_v<priv_ns::Instr, T>)
                 return CorrectnessChecker<Instructions...>::check();
-            } else return false;
+            else return false;
         }
     };
 
@@ -274,7 +265,7 @@ private:
     };
 
     // Jeżeli przechodząc przez instrukcje natrafimy na deklarację, deklarujemy zmienną w pamięci komputera.
-    template<id_type id, auto val, typename... Instructions>
+    template<priv_ns::id_type id, auto val, typename... Instructions>
     struct DeclarationParser<D<id, Num<val>>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.ind < h.mem.size()) {
@@ -297,7 +288,7 @@ private:
 
     // Jeżeli deklaracja nie została zmatchowana do D<id, Num<val>> to znaczy,
     // że Value nie jest Num, rzucamy więc wyjątek.
-    template<id_type id, typename Value, typename... Instructions>
+    template<priv_ns::id_type id, typename Value, typename... Instructions>
     struct DeclarationParser<D<id, Value>, Instructions...> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
             throw std::logic_error("VALUE IS NOT NUM!");
@@ -313,7 +304,6 @@ private:
     template<typename ...OrginalInstructions>
     struct InstructionsParser<Program<OrginalInstructions...>> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
-
         }
     };
 
@@ -337,7 +327,7 @@ private:
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Add<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            auto result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
+            word_t result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
             Evaluator<Arg1>::lvalue(h) = result;
             set_flags_arthmetic(h, result);
             InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
@@ -347,7 +337,7 @@ private:
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Sub<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
+            word_t result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
             Evaluator<Arg1>::lvalue(h) = result;
             set_flags_arthmetic(h, result);
             InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
@@ -374,14 +364,14 @@ private:
         }
     };
 
-    template<typename ...OrginalInstructions, id_type label_id, typename... Instructions>
+    template<typename ...OrginalInstructions, priv_ns::id_type label_id, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Jmp<label_id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             LabelParser<Program<OrginalInstructions...>, label_id, OrginalInstructions...>::evaluate(h);
         }
     };
 
-    template<typename ...OrginalInstructions, id_type label_id, typename... Instructions>
+    template<typename ...OrginalInstructions, priv_ns::id_type label_id, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Jz<label_id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.ZF)
@@ -390,7 +380,7 @@ private:
         }
     };
 
-    template<typename ...OrginalInstructions, id_type label_id, typename... Instructions>
+    template<typename ...OrginalInstructions, priv_ns::id_type label_id, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Js<label_id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (h.SF)
@@ -441,13 +431,13 @@ private:
     // Zawiera metodę 'evaluate' znajdującą pierwsze wystąpienie Label<label_to_find>.
     // Po znalezieniu wywoływane jest analizowanie pozostałych instrukcji (InstructionsParser::evaluate).
     // Jeżeli label nie zostanie odnaleziony rzucany jest wyjątek.
-    template<typename Program, id_type label_to_find, typename... Instructions>
+    template<typename Program, priv_ns::id_type label_to_find, typename... Instructions>
     struct LabelParser;
 
     // Jeżeli trafiliśmy na jakiś Label, sprawdzamy czy to ten, którego szukamy.
     // Jeżeli tak, to kończymy szukanie i wywołujemy 'evaluate' z 'InstructionsParser' na pozostałych instrukcjach.
     // Jeżeli nie, kontynuujemy szukanie.
-    template<typename ...OrginalInstructions, id_type label_to_find, id_type id, typename... Instructions>
+    template<typename ...OrginalInstructions, priv_ns::id_type label_to_find, priv_ns::id_type id, typename... Instructions>
     struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (label_to_find == id)
@@ -456,14 +446,14 @@ private:
         }
     };
 
-    template<typename ...OrginalInstructions, id_type label_to_find, typename Skip, typename... Instructions>
+    template<typename ...OrginalInstructions, priv_ns::id_type label_to_find, typename Skip, typename... Instructions>
     struct LabelParser<Program<OrginalInstructions...>, label_to_find, Skip, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             LabelParser<Program<OrginalInstructions...>, label_to_find, Instructions...>::evaluate(h);
         }
     };
 
-    template<typename ...OrginalInstructions, id_type label_to_find>
+    template<typename ...OrginalInstructions, priv_ns::id_type label_to_find>
     struct LabelParser<Program<OrginalInstructions...>, label_to_find> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
             throw std::logic_error("LABEL NOT FOUND");
