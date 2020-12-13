@@ -265,7 +265,7 @@ private:
         constexpr static bool check() {
             if (std::is_base_of_v<priv_ns::Instr, T>) {
                 InstructionsParser<Program<OrginalInstructions...>, T>::check();
-                return CorrectnessChecker<Instructions...>::check();
+                return CorrectnessChecker<Program<OrginalInstructions...>, Instructions...>::check();
             } else {
                 return false;
             }
