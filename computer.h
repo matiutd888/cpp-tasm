@@ -327,7 +327,7 @@ private:
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Add<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            word_t result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
+            auto result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
             Evaluator<Arg1>::lvalue(h) = result;
             set_flags_arthmetic(h, result);
             InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
@@ -337,7 +337,7 @@ private:
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Sub<Arg1, Arg2>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            word_t result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
+            auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
             Evaluator<Arg1>::lvalue(h) = result;
             set_flags_arthmetic(h, result);
             InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
