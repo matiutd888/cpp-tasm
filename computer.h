@@ -357,7 +357,8 @@ private:
     template<typename ...OrginalInstructions, typename Arg1, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Inc<Arg1>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            auto result = ++Evaluator<Arg1>::lvalue(h);
+            word_t &result = Evaluator<Arg1>::lvalue(h);
+            result += 1;
             set_flags_arthmetic(h, result);
             InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
@@ -366,7 +367,8 @@ private:
     template<typename ...OrginalInstructions, typename Arg1, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Dec<Arg1>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
-            auto result = --Evaluator<Arg1>::lvalue(h);
+            word_t &result = Evaluator<Arg1>::lvalue(h);
+            result -= 1;
             set_flags_arthmetic(h, result);
             InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
