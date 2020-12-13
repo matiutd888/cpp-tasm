@@ -480,7 +480,7 @@ private:
                 InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
             } else {
                 Evaluator<Arg1>::check_rvalue();
-                Evaluator<Arg2>::check_lvalue();
+                Evaluator<Arg2>::check_rvalue();
             }
         }
     };
