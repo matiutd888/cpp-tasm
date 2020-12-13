@@ -142,10 +142,9 @@ private:
 public:
     template<typename Prog>
     static constexpr std::array<word_t, size> boot() {
-        hardware h = {memory_t(), ids_t(), false, false, 0};
-        if (!ComputerProgram<Prog>::check_corectness(h)) {
+        if (!ComputerProgram<Prog>::check_corectness())
             throw std::logic_error("INVALID INSTRUCTION!");
-        }
+        hardware h = {memory_t(), ids_t(), false, false, 0};
         ComputerProgram<Prog>::declare_variables(h);
         ComputerProgram<Prog>::run(h);
         return h.mem;
@@ -179,7 +178,7 @@ private:
     struct ComputerProgram<Program<Instructions...>> {
         // Wykonuje instrukcje zawarte w ...Instrukctions, omijając deklaracje.
         constexpr static void run(hardware &h) {
-            InstructionsParser<Program<Instructions...>, Instructions...>::evaluate(h, false);
+            InstructionsParser<Program<Instructions...>, Instructions...>::evaluate(h);
         }
 
         // Deklaruje zawarte w Programie zmienne.
@@ -189,8 +188,8 @@ private:
 
         // Sprawdza, czy wszystkie 'instrukcje' w Programie są rzeczywiście instrukcjami.
         // Zwraca wartość 'true' jeśli tak.
-        constexpr static bool check_corectness(hardware &h) {
-            return CorrectnessChecker<Program<Instructions...>, Instructions...>::check(h);
+        constexpr static bool check_corectness() {
+            return CorrectnessChecker<Program<Instructions...>, Instructions...>::check();
         }
     };
 
@@ -253,21 +252,23 @@ private:
     template<typename... Instr>
     struct CorrectnessChecker;
 
-    template<typename ...OrginalInstructions>
+    template<typename... OrginalInstructions>
     struct CorrectnessChecker<Program<OrginalInstructions...>> {
         // Jeżeli nie mamy już żadnej instrukcji do sprawdzenia, wszystkie były poprawne.
-        static constexpr bool check(hardware &) {
+        constexpr static bool check() {
             return true;
         }
     };
 
-    template<typename ...OrginalInstructions, typename T, typename... Instructions>
+    template<typename... OrginalInstructions, typename T, typename... Instructions>
     struct CorrectnessChecker<Program<OrginalInstructions...>, T, Instructions...> {
-        constexpr static bool check(hardware &h) {
+        constexpr static bool check() {
             if (std::is_base_of_v<priv_ns::Instr, T>) {
-                InstructionsParser<Program<OrginalInstructions...>, T>::evaluate(h, true);
-                return CorrectnessChecker<Program<OrginalInstructions...>, Instructions...>::check(h);
-            } else return false;
+                InstructionsParser<Program<OrginalInstructions...>, T>::check();
+                return CorrectnessChecker<Instructions...>::check();
+            } else {
+                return false;
+            }
         }
     };
 
@@ -321,7 +322,7 @@ private:
 
     template<typename ...OrginalInstructions>
     struct InstructionsParser<Program<OrginalInstructions...>> {
-        constexpr static void evaluate([[maybe_unused]] hardware &h, [[maybe_unused]] bool check_mode) {
+        constexpr static void evaluate([[maybe_unused]] hardware &h) {
         }
     };
 
@@ -329,159 +330,170 @@ private:
     // instrukcji sprawdzana jest w innym miejscu.
     template<typename ...OrginalInstructions, typename Skip, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Skip, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
+        constexpr static void evaluate(hardware &h) {
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
+
+        constexpr static void check() {}
     };
 
     template<typename ...OrginalInstructions, typename Dst, typename Src, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Mov<Dst, Src>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                Evaluator<Dst>::lvalue(h) = Evaluator<Src>::rvalue(h);
-                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            } else {
-                Evaluator<Dst>::check_lvalue();
-                Evaluator<Src>::check_rvalue();
-            }
+        constexpr static void evaluate(hardware &h) {
+            Evaluator<Dst>::lvalue(h) = Evaluator<Src>::rvalue(h);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
+
+        constexpr static void check() {
+            Evaluator<Dst>::check_lvalue();
+            Evaluator<Src>::check_rvalue();
         }
     };
 
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Add<Arg1, Arg2>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                auto result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
-                Evaluator<Arg1>::lvalue(h) = result;
-                set_flags_arthmetic(h, result);
-                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            } else {
-                Evaluator<Arg1>::check_lvalue();
-                Evaluator<Arg2>::check_rvalue();
-            }
+        constexpr static void evaluate(hardware &h) {
+            auto result = Evaluator<Arg1>::rvalue(h) + Evaluator<Arg2>::rvalue(h);
+            Evaluator<Arg1>::lvalue(h) = result;
+            set_flags_arthmetic(h, result);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
+
+        constexpr static void check() {
+            Evaluator<Arg1>::check_lvalue();
+            Evaluator<Arg2>::check_rvalue();
         }
     };
 
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Sub<Arg1, Arg2>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
-                Evaluator<Arg1>::lvalue(h) = result;
-                set_flags_arthmetic(h, result);
-                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            } else {
-                Evaluator<Arg1>::check_lvalue();
-                Evaluator<Arg2>::check_rvalue();
-            }
+        constexpr static void evaluate(hardware &h) {
+            auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
+            Evaluator<Arg1>::lvalue(h) = result;
+            set_flags_arthmetic(h, result);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
+
+        constexpr static void check() {
+            Evaluator<Arg1>::check_lvalue();
+            Evaluator<Arg2>::check_rvalue();
         }
     };
 
-    template<typename ...OrginalInstructions, typename Arg1, typename... Instructions>
-    struct InstructionsParser<Program<OrginalInstructions...>, Inc<Arg1>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            InstructionsParser<Program<OrginalInstructions...>, Add<Arg1, Num<1>>,
-                    Instructions...>::evaluate(h, check_mode);
+    template<typename ...OrginalInstructions, typename Arg, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Inc<Arg>, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
+            word_t &result = Evaluator<Arg>::lvalue(h);
+            result += 1;
+            set_flags_arthmetic(h, result);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
+
+        constexpr static void check() {
+            Evaluator<Arg>::check_lvalue();
         }
     };
 
-    template<typename ...OrginalInstructions, typename Arg1, typename... Instructions>
-    struct InstructionsParser<Program<OrginalInstructions...>, Dec<Arg1>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            InstructionsParser<Program<OrginalInstructions...>, Sub<Arg1, Num<1>>,
-                    Instructions...>::evaluate(h, check_mode);
+    template<typename ...OrginalInstructions, typename Arg, typename... Instructions>
+    struct InstructionsParser<Program<OrginalInstructions...>, Dec<Arg>, Instructions...> {
+        constexpr static void evaluate(hardware &h) {
+            word_t &result = Evaluator<Arg>::lvalue(h);
+            result -= 1;
+            set_flags_arthmetic(h, result);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
+
+        constexpr static void check() {
+            Evaluator<Arg>::check_lvalue();
         }
     };
 
     template<typename ...OrginalInstructions, priv_ns::id_type label_id, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Jmp<label_id>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                LabelParser<Program<OrginalInstructions...>, label_id, OrginalInstructions...>::evaluate(h);
-            }
+        constexpr static void evaluate(hardware &h) {
+            LabelParser<Program<OrginalInstructions...>, label_id, OrginalInstructions...>::evaluate(h);
         }
+
+        constexpr static void check() {}
     };
 
     template<typename ...OrginalInstructions, priv_ns::id_type label_id, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Jz<label_id>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                if (h.ZF)
-                    InstructionsParser<Program<OrginalInstructions...>, Jmp<label_id>,
-                            Instructions...>::evaluate(h, check_mode);
-                else InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            }
+        constexpr static void evaluate(hardware &h) {
+            if (h.ZF)
+                InstructionsParser<Program<OrginalInstructions...>, Jmp<label_id>, Instructions...>::evaluate(h);
+            else InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
+
+        constexpr static void check() {}
     };
 
     template<typename ...OrginalInstructions, priv_ns::id_type label_id, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Js<label_id>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                if (h.SF)
-                    InstructionsParser<Program<OrginalInstructions...>, Jmp<label_id>,
-                            Instructions...>::evaluate(h, check_mode);
-                else InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            }
+        constexpr static void evaluate(hardware &h) {
+            if (h.SF)
+                InstructionsParser<Program<OrginalInstructions...>, Jmp<label_id>, Instructions...>::evaluate(h);
+            else InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
         }
+
+        constexpr static void check() {}
     };
 
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, And<Arg1, Arg2>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                auto result = Evaluator<Arg1>::rvalue(h) & Evaluator<Arg2>::rvalue(h);
-                Evaluator<Arg1>::lvalue(h) = result;
-                set_flags_logical(h, result);
-                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            } else {
-                Evaluator<Arg1>::check_lvalue();
-                Evaluator<Arg2>::check_rvalue();
-            }
+        constexpr static void evaluate(hardware &h) {
+            auto result = Evaluator<Arg1>::rvalue(h) & Evaluator<Arg2>::rvalue(h);
+            Evaluator<Arg1>::lvalue(h) = result;
+            set_flags_logical(h, result);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
+
+        constexpr static void check() {
+            Evaluator<Arg1>::check_lvalue();
+            Evaluator<Arg2>::check_rvalue();
         }
     };
 
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Or<Arg1, Arg2>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                auto result = Evaluator<Arg1>::rvalue(h) | Evaluator<Arg2>::rvalue(h);
-                Evaluator<Arg1>::lvalue(h) = result;
-                set_flags_logical(h, result);
-                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            } else {
-                Evaluator<Arg1>::check_lvalue();
-                Evaluator<Arg2>::check_rvalue();
-            }
+        constexpr static void evaluate(hardware &h) {
+            auto result = Evaluator<Arg1>::rvalue(h) | Evaluator<Arg2>::rvalue(h);
+            Evaluator<Arg1>::lvalue(h) = result;
+            set_flags_logical(h, result);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
+
+        constexpr static void check() {
+            Evaluator<Arg1>::check_lvalue();
+            Evaluator<Arg2>::check_rvalue();
         }
     };
 
     template<typename ...OrginalInstructions, typename Arg, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Not<Arg>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                auto result = ~Evaluator<Arg>::rvalue(h);
-                Evaluator<Arg>::lvalue(h) = result;
-                set_flags_logical(h, result);
-                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            } else {
-                Evaluator<Arg>::check_lvalue();
-            }
+        constexpr static void evaluate(hardware &h) {
+            auto result = ~Evaluator<Arg>::rvalue(h);
+            Evaluator<Arg>::lvalue(h) = result;
+            set_flags_logical(h, result);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
 
+        constexpr static void check() {
+            Evaluator<Arg>::check_lvalue();
         }
     };
 
     template<typename ...OrginalInstructions, typename Arg1, typename Arg2, typename... Instructions>
     struct InstructionsParser<Program<OrginalInstructions...>, Cmp<Arg1, Arg2>, Instructions...> {
-        constexpr static void evaluate(hardware &h, bool check_mode) {
-            if (!check_mode) {
-                auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
-                set_flags_arthmetic(h, result);
-                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, check_mode);
-            } else {
-                Evaluator<Arg1>::check_rvalue();
-                Evaluator<Arg2>::check_rvalue();
-            }
+        constexpr static void evaluate(hardware &h) {
+            auto result = Evaluator<Arg1>::rvalue(h) - Evaluator<Arg2>::rvalue(h);
+            set_flags_arthmetic(h, result);
+            InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
+        }
+
+        constexpr static void check() {
+            Evaluator<Arg1>::check_rvalue();
+            Evaluator<Arg2>::check_rvalue();
         }
     };
 
@@ -498,7 +510,7 @@ private:
     struct LabelParser<Program<OrginalInstructions...>, label_to_find, Label<id>, Instructions...> {
         constexpr static void evaluate(hardware &h) {
             if (label_to_find == id)
-                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h, false);
+                InstructionsParser<Program<OrginalInstructions...>, Instructions...>::evaluate(h);
             else LabelParser<Program<OrginalInstructions...>, label_to_find, Instructions...>::evaluate(h);
         }
     };
