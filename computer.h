@@ -16,7 +16,7 @@ namespace priv_ns {
     // Na początku jeśli 'c' jest małą literą, zamieniane jest na dużą literę.
     // Następnie zwracany jest numer znaku 'c' w ciągu '0', '1', ..., '9', 'A', 'B', ..., 'Z'
     // (gdzie numer znaku '0' jest równy 1, itd).
-    // Jeżeli 'c' nie jest ani cyfrą ani literą rzucany jest wyjątek std::logic_error.
+    // Jeżeli 'c' nie jest ani cyfrą ani literą rzucany jest wyjątek std::invalid_argument.
     constexpr id_type get_char_id(char c) {
         if (c >= 'a' && c <= 'z')
             c = c + 'A' - 'a';
@@ -34,7 +34,7 @@ namespace priv_ns {
 }
 
 // Zwraca zakodowane różnowartościowo id reprezentowane przez łańcuch 'id_str'.
-// Jeżeli długość 'id_str' nie jest z zakresu {1, ..., 6} rzuca std::logic_error.
+// Jeżeli długość 'id_str' nie jest z zakresu {1, ..., 6} rzuca std::invalid_argument.
 constexpr priv_ns::id_type Id(const char *id_str) {
     std::basic_string_view<char> s(id_str);
     if (priv_ns::id_size_min <= s.size() && s.size() <= priv_ns::id_size_max) {
