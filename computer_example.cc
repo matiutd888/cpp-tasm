@@ -59,13 +59,13 @@ using tmpasm_helloworld = Program<
 
 using check_update = Program<
         Jmp<Id("dupa")>,
-        Add<Num<19>, Num<12>>,
+       Cmp<Num<19>, Num<12>>,
         Label<Id("dupa")>>;
 
 int main() {
     static_assert(compare(
-            Computer<1, int8_t>::boot<tmpasm_move>(),
-            std::array<int8_t, 1>({42})),
+            Computer<1, int8_t>::boot<check_update >(),
+            std::array<int8_t, 1>({})),
                   "Failed [tmpasp_move].");
     static_assert(compare(
             Computer<1, int8_t>::boot<tmpasm_move>(),

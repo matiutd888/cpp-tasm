@@ -25,7 +25,7 @@ namespace priv_ns {
         else if (c >= 'A' && c <= 'Z')
             return c - 'A' + '9' - '0' + 2;
         else {
-            throw std::logic_error("NOT VALID ID SIGN!");
+            throw std::invalid_argument("NOT VALID ID SIGN!");
         }
     }
 
@@ -48,7 +48,7 @@ constexpr priv_ns::id_type Id(const char *id_str) {
         }
         return res;
     } else {
-        throw std::logic_error("NOT VALID ID LENGHT!");
+        throw std::invalid_argument("NOT VALID ID LENGHT!");
     }
 }
 
@@ -143,7 +143,7 @@ public:
     template<typename Prog>
     static constexpr std::array<word_t, size> boot() {
         if (!ComputerProgram<Prog>::check_corectness())
-            throw std::logic_error("INVALID INSTRUCTION!");
+            throw std::logic_error("INVALID INSTRUCTION FOUND!");
         hardware h = {memory_t(), ids_t(), false, false, 0};
         ComputerProgram<Prog>::declare_variables(h);
         ComputerProgram<Prog>::run(h);
@@ -220,7 +220,7 @@ private:
                     return ret;
                 }
             }
-            throw std::logic_error("NO ID!");
+            throw std::logic_error("NOT EXISTING ID!");
         }
 
         static constexpr bool check_rvalue() {
@@ -292,7 +292,7 @@ private:
                 h.mem[h.ind] = Evaluator<Num<val>>::rvalue(h);
                 h.ind++;
             } else {
-                throw std::logic_error("NOT ENOUGH MEMORY TO DECLARE!");
+                throw std::logic_error("TOO MANY DECLARATIONS!");
             }
             DeclarationParser<Instructions...>::evaluate(h);
         }
@@ -310,7 +310,7 @@ private:
     template<priv_ns::id_type id, typename Value, typename... Instructions>
     struct DeclarationParser<D<id, Value>, Instructions...> {
         constexpr static void evaluate([[maybe_unused]] hardware &h) {
-            throw std::logic_error("VALUE IS NOT NUM!");
+            throw std::invalid_argument("DECLARATION VALUE IS NOT NUM!");
         }
     };
 
