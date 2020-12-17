@@ -7,7 +7,7 @@
 
 namespace priv_ns {
     using id_type = uint_fast64_t; // Typ zwracany przez Id(str), reprezentuje kod reprezentujący dane id.
-    constexpr id_type id_code_base = 38; // Liczba różnych znaków w łańcuchach znaków reprezentujących id + 2.
+    constexpr id_type id_code_base = 36; // Liczba różnych znaków w łańcuchach znaków reprezentujących.
     constexpr size_t id_size_min = 1;
     constexpr size_t id_size_max = 6;
 
@@ -123,12 +123,14 @@ struct Js : priv_ns::Instr {
 template<size_t size, typename word_t>
 struct Computer {
 private:
-    using memory_t = std::array<word_t, size>; // Typ reprezentujacy tablicę przechowującą efektywne wartości
+    // Typ reprezentujacy tablicę przechowującą efektywne wartości
     // kolejnych adresów pamięci komputera.
+    using memory_t = std::array<word_t, size>;
 
-    using ids_t = std::array<priv_ns::id_type, size>; // Typ reprezentujący tablicę która dla komórki pamięci o adresie 'i'
+    // Typ reprezentujący tablicę która dla komórki pamięci o adresie 'i'
     // przechowuje identyfikator zmiennej w niej
     // przechowywanej.
+    using ids_t = std::array<priv_ns::id_type, size>;
 
     // Struktura reprezentująca aktualny stan komputera.
     struct hardware {
@@ -156,11 +158,13 @@ private:
     static constexpr void set_flags_arthmetic(hardware &h, word_t result) {
         if (result == 0)
             h.ZF = 1;
-        else h.ZF = 0;
+        else
+            h.ZF = 0;
 
         if (result < 0)
             h.SF = 1;
-        else h.SF = 0;
+        else
+            h.SF = 0;
     }
 
     // Dla danego wyniku operacji logicznej ustawia odpowiednie flagi w strukturze
@@ -168,7 +172,8 @@ private:
     static constexpr void set_flags_logical(hardware &h, word_t result) {
         if (result == 0)
             h.ZF = 1;
-        else h.ZF = 0;
+        else
+            h.ZF = 0;
     }
 
     template<typename Prog>
