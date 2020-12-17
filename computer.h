@@ -7,7 +7,7 @@
 
 namespace priv_ns {
     using id_type = uint_fast64_t; // Typ zwracany przez Id(str), reprezentuje kod reprezentujący dane id.
-    constexpr id_type id_code_base = 36; // Liczba różnych znaków w łańcuchach znaków reprezentujących.
+    constexpr id_type id_code_base = 36; // Liczba różnych znaków w łańcuchach znaków reprezentujących id.
     constexpr size_t id_size_min = 1;
     constexpr size_t id_size_max = 6;
 
