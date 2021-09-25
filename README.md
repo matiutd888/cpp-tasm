@@ -61,4 +61,4 @@ Instructions:
   Example:<br>
   Jmp<Id("label")>, Jz<Id("stop")>.
 
-<br> Example usages are listed in common folder.
+<br> You can find example programs in [tests](tests) directory.
