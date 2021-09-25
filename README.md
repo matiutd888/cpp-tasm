@@ -14,7 +14,7 @@ Computer class has core method ```boot```, which loads and executes programme wr
 Programme written in TMPAsm language is effectively a sequence of instructions.
 
 ### Instruction types
-#### fundamental instructions
+#### Fundamental instructions
 * ```Id(const char*)``` - creates a label or variable identificator.
 * ```Num<word_type>``` - pvalue, represents numerical value <br>
     Examples: ```Num<10>```, ```Num<-1>```
@@ -26,7 +26,7 @@ Programme written in TMPAsm language is effectively a sequence of instructions.
     Example: ```D<Id("A"), Num<5>>``` 
 * ```Mov<Dst, Src>``` - copies value of Src into Dst, Dst must be a valid l-value, and Src must be a valid r-value<br>
     Examples: ```Mov<Mem<Num<0>>```, ```Num<13>>```, ```Mov<Mem<Lea<Id("abc")>>```, ```Mem<Num<0>>>```
-#### arithmetic operations
+#### Arithmetic operations
 * ```Add<Arg1, Arg2>``` - adds ```Arg2``` to ```Arg1``` and saves result to ```Arg1``` (```Arg1``` has to be lvalue, ```Arg2``` has to be pvalue). <br>
 * ```Sub<Arg1, Arg2>``` - substracts ```Arg2``` from ```Arg1``` and saves result to ```Arg1``` (```Arg1``` has to be lvalue, ```Arg2``` has to be pvalue).<br>
 * ```Inc<Arg>``` - Increments ```Arg``` (it has to be lvalue).<br>
@@ -36,7 +36,7 @@ Examples: ```Add<Mem<Num<0>>```, ```Num<1>>, Inc<Mem<Lea<Id("a")>>>``` <br><br>
 Arithmetic operations set
 * ZF flag (zero flag) in processor to ```1``` if result is equal to ```0```, flag is set to ```0``` otherwise.
 * SF flag (sign flag) in processor to ```1``` if result is negative, to ```0``` otherwise.
-#### additional instructions
+#### Additional instructions
 * Logical operators:<br>
   ```And<Arg1, Arg2>``` <br>
   ```Or<Arg1, Arg2>``` <br>
