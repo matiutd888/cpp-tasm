@@ -61,4 +61,4 @@ Instructions:
   Example:<br>
   Jmp<Id("label")>, Jz<Id("stop")>.
 
-<br> You can find example programs in [tests](tests) directory. Also, task description in Polish can be found in [desc] directory
+<br> You can find example programs in [tests](tests) directory. Also, task description in Polish can be found in [desc](desc) directory
