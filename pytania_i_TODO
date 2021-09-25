@@ -1,4 +1,0 @@
-1. Czy ZF, SF musza być constexpr? Czy memory musi być constexpr?
-8. jak wykrywać to że ktoś zamiast Id("dupa12") dał nam liczbę
-10. JAK DZIALA Sub<Mem, Lea>????? //TODO
-11. TODO błędy mają być zgłaszane wyjątkami czy wystarczy  ze się nie skompiluje???
