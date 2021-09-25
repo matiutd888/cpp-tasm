@@ -1,6 +1,6 @@
 # Assembler simulation in C++
-This repo contains an implementation of C++ computer simulation. It has it's own memory, and is able to execute assembler language commands. <br>
-It uses c++ templates and metaprogramming. <br>
+This repo contains an implementation of Template assembly (Tasm) simulation.
+
 Instructions:
 
 * Id(const char*) - Creates a label.
